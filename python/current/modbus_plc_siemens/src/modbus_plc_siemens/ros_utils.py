@@ -158,59 +158,55 @@ pub = rospy.Publisher("modbus_wrapper/output",
 output = HoldingRegister()
 
 
+#########################################
 
-
-
-
-
-
-
+#########################################
 
 def pickup_block(way):
     # move to necessary column (column №3)
-    r_set(3, 1, 6)  # 115
+    r_set(3, 1, 6)
     # move to necessary cell (line №4)
-    r_set(5, 1, 23)  # 117
+    r_set(5, 1, 23)
     # pickup the block
-    r_set(8, 1, 25)  # 120
-    r_set(5, 1, 24)  # 117
-    r_set(7, 1, 26)  # 119
+    r_set(8, 1, 25)
+    r_set(5, 1, 24)
+    r_set(7, 1, 26)
     # deliver the block
     if way == 1:
-        r_set(2, 1, 99)  # 114
+        r_set(2, 1, 99)
     elif way == 2:
-        r_set(3, 1, 100)  # 115
+        r_set(3, 1, 100)
     elif way == 3:
-        r_set(3, 1, 101)  # 115
+        r_set(3, 1, 101)
     elif way == 4:
-        r_set(3, 1, 102)  # 115
+        r_set(3, 1, 102)
 
-    r_set(7, 1, 27)  # 119
-    r_set(6, 1, 17)  # 118
-    r_set(8, 1, 26)  # 120
+    r_set(7, 1, 27)
+    r_set(6, 1, 17)
+    r_set(8, 1, 26)
 
     # return to starting position
-    r_post(r_set, (2, 1, 4))  # 114
+    r_post(r_set, (2, 1, 4))
 
 
 # ---------------------------------------
 
 def put_block():
     # pickup the block
-    r_set(16, 1, 96)  # 128
-    r_set(13, 1, 89)  # 125
-    r_set(15, 1, 97)  # 127
+    r_set(16, 1, 96)
+    r_set(13, 1, 89)
+    r_set(15, 1, 97)
     # move to necessary column (column №9)
-    r_set(10, 1, 83)  # 122
+    r_set(10, 1, 83)
     # move to necessary cell (line №4)
-    r_set(13, 1, 95)  # 125
+    r_set(13, 1, 95)
     # put the block
-    r_set(15, 1, 98)  # 127
-    r_set(14, 1, 94)  # 126
-    r_set(16, 1, 97)  # 128
+    r_set(15, 1, 98)
+    r_set(14, 1, 94)
+    r_set(16, 1, 97)
     # return to starting position
-    r_set(14, 1, 88)  # 126
-    r_set(11, 1, 86)  # 123
+    r_set(14, 1, 88)
+    r_set(11, 1, 86)
 
 
 # ---------------------------------------
@@ -218,15 +214,18 @@ def put_block():
 def run_a():
     pickup_block(1)
     # ----------------------------
-    r_post(r_set, (19, 1, 33))  # 131
-    r_set(21, 1, 33)  # 133
+    r_post(r_set, (19, 1, 33))
+    r_set(21, 1, 33)
 
     # handler work
-    r_set(25, 1, 36)  # 137
-    r_set(26, 1, time=1)  # 138
-    r_set(24, 1, 37)  # 136
+    r_set(22, 1, 34)
+    r_set(25, 1, 36)
+    r_set(26, 1, time=1)
+    r_set(24, 1, 37)
+    r_set(23, 1, 35)
 
-    r_set(31, 1, 39)  # 143
+    if r_get(39) == 1:
+        r_set(31, 1, 39)
 
     r_post(r_set, (21, 1, 38))
     r_set(33, 1, 38)
@@ -237,11 +236,17 @@ def run_a():
     r_post(r_set, (33, 1, 41))
     r_set(35, 1, 41)
 
+    if r_get(50) == 1:
+        r_set(50, 1, 50)
+
     r_post(r_set, (35, 1, 48))
     r_set(52, 1, 48)
 
     r_post(r_set, (52, 1, 51))
     r_set(54, 1, 51)
+
+    if r_get(60) == 1:
+        r_set(68, 1, 60)
 
     r_post(r_set, (54, 1, 58))
     r_set(71, 1, 58)
@@ -275,45 +280,54 @@ def run_a():
 def run_b():
     pickup_block(2)
     # ----------------------------
-    r_post(r_set, (38, 1, 43))  # 150
-    r_set(40, 1, 43)  # 152
+    r_post(r_set, (38, 1, 43))
+    r_set(40, 1, 43)
 
     # handler work
-    r_set(43, 1, 46)  # 155
-    r_set(45, 1, time=1)  # 157
-    r_set(44, 1, 47)  # 156
+    r_set(41, 1, 44)
+    r_set(43, 1, 46)
+    r_set(45, 1, time=1)
+    r_set(44, 1, 47)
+    r_set(42, 1, 45)
 
-    r_set(49, 1, 49)  # 161
+    if r_get(49) == 1:
+        r_set(49, 1, 49)
 
-    r_post(r_set, (40, 1, 48))  # 152
-    r_set(52, 1, 48)  # 164
+    r_post(r_set, (40, 1, 48))
+    r_set(52, 1, 48)
 
-    r_set(50, 1, 50)  # 162
+    r_set(50, 1, 50)
     # ----------------------------
 
-    r_post(r_set, (52, 1, 51))  # 164
-    r_set(54, 1, 51)  # 166
+    r_post(r_set, (52, 1, 51))
+    r_set(54, 1, 51)
 
-    r_post(r_set, (54, 1, 58))  # 166
-    r_set(71, 1, 58)  # 183
+    if r_get(60) == 1:
+        r_set(68, 1, 60)
 
-    r_post(r_set, (71, 1, 61))  # 183
-    r_set(73, 1, 61)  # 185
+    r_post(r_set, (54, 1, 58))
+    r_set(71, 1, 58)
 
-    r_post(r_set, (73, 1, 68))  # 185
-    r_set(90, 1, 68)  # 202
+    r_post(r_set, (71, 1, 61))
+    r_set(73, 1, 61)
+
+    if r_get(70) == 1:
+        r_set(87, 1, 70)
+
+    r_post(r_set, (73, 1, 68))
+    r_set(90, 1, 68)
 
     # ----------------------------
-    r_set(88, 1, 69)  # 200
+    r_set(88, 1, 69)
 
-    r_post(r_set, (90, 1, 72))  # 202
-    r_set(93, 1, 72)  # 205
+    r_post(r_set, (90, 1, 72))
+    r_set(93, 1, 72)
 
-    r_post(r_set, (87, 1, 70))  # 199
+    r_post(r_set, (87, 1, 70))
     r_sleep(1)  # color detection
 
-    r_post(r_set, (93, 1, 73))  # 205
-    r_set(95, 1, 73)  # 207
+    r_post(r_set, (93, 1, 73))
+    r_set(95, 1, 73)
     # ----------------------------
     put_block()
 
@@ -323,39 +337,45 @@ def run_b():
 def run_c():
     pickup_block(3)
     # ----------------------------
-    r_post(r_set, (57, 1, 53))  # 169
-    r_set(59, 1, 53)  # 171
+    r_post(r_set, (57, 1, 53))
+    r_set(59, 1, 53)
 
     # handler work
-    r_set(62, 1, 56)  # 174
-    r_set(64, 1, time=1)  # 176
-    r_set(63, 1, 57)  # 175
+    r_set(60, 1, 64)
+    r_set(62, 1, 56)
+    r_set(64, 1, time=1)
+    r_set(63, 1, 57)
+    r_set(61, 1, 65)
 
-    r_set(69, 1, 59)  # 181
+    if r_get(59) == 1:
+        r_set(69, 1, 59)
 
-    r_post(r_set, (59, 1, 58))  # 171
-    r_set(71, 1, 58)  # 183
+    r_post(r_set, (59, 1, 58))
+    r_set(71, 1, 58)
 
-    r_set(68, 1, 60)  # 180
+    r_set(68, 1, 60)
     # ----------------------------
 
-    r_post(r_set, (71, 1, 61))  # 183
-    r_set(73, 1, 61)  # 185
+    r_post(r_set, (71, 1, 61))
+    r_set(73, 1, 61)
 
-    r_post(r_set, (73, 1, 68))  # 185
-    r_set(90, 1, 68)  # 202
+    if r_get(70) == 1:
+        r_set(87, 1, 70)
+
+    r_post(r_set, (73, 1, 68))
+    r_set(90, 1, 68)
 
     # ----------------------------
-    r_set(88, 1, 69)  # 200
+    r_set(88, 1, 69)
 
-    r_post(r_set, (90, 1, 72))  # 202
-    r_set(93, 1, 72)  # 205
+    r_post(r_set, (90, 1, 72))
+    r_set(93, 1, 72)
 
-    r_post(r_set, (87, 1, 70))  # 199
+    r_post(r_set, (87, 1, 70))
     r_sleep(1)  # color detection
 
-    r_post(r_set, (93, 1, 73))  # 205
-    r_set(95, 1, 73)  # 207
+    r_post(r_set, (93, 1, 73))
+    r_set(95, 1, 73)
     # ----------------------------
     put_block()
 
@@ -365,27 +385,30 @@ def run_c():
 def run_d():
     pickup_block(4)
     # ----------------------------
-    r_post(r_set, (76, 1, 63))  # 188
-    r_set(78, 1, 63)  # 190
+    r_post(r_set, (76, 1, 63))
+    r_set(78, 1, 63)
 
     # handler work
-    r_set(81, 1, 66)  # 193
-    r_set(83, 1, 103)  # 195
-    r_set(96, 1, time=1)  # 208
-    r_set(82, 1, 67)  # 194
+    r_set(79, 1, 64)
+    r_set(81, 1, 66)
+    r_set(83, 1, time=1)
+    r_set(96, 1, time=1)
+    r_set(82, 1, 67)
+    r_set(80, 1, 65)
 
-    r_set(88, 1, 69)  # 200
+    if r_get(69) == 1:
+        r_set(88, 1, 69)
 
-    r_post(r_set, (78, 1, 68))  # 190
-    r_set(90, 1, 68)  # 202
+    r_post(r_set, (78, 1, 68))
+    r_set(90, 1, 68)
 
-    r_post(r_set, (90, 1, 72))  # 202
-    r_set(93, 1, 72)  # 205
+    r_post(r_set, (90, 1, 72))
+    r_set(93, 1, 72)
 
-    r_set(30, 1, 70)  # 199
+    r_set(30, 1, 70)
     r_sleep(1)  # color detection
 
-    r_post(r_set, (93, 1, 73))  # 205
-    r_set(95, 1, 73)  # 207
+    r_post(r_set, (93, 1, 73))
+    r_set(95, 1, 73)
     # ----------------------------
     put_block()
