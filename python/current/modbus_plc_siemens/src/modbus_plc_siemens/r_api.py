@@ -85,14 +85,14 @@ def r_set(port, value=1, sensor=None, time=None):
                        Resets port value after sensor value changed
         :type port: int in range (0, 112)
         :param time: Timer to revert value
-        :type value: int
+        :type time: float
     """
     global out_ports
 
-    out_ports[port] = value
-    r_send(out_ports)
-
     if sensor is not None:
+        out_ports[port] = value
+        r_send(out_ports)
+
         value = r_get(sensor)
 
         while r_get(sensor) == value:
@@ -102,9 +102,16 @@ def r_set(port, value=1, sensor=None, time=None):
         r_send(out_ports)
 
     if time is not None:
+        out_ports[port] = value
+        r_send(out_ports)
+
         r_sleep(time)
 
         out_ports[port] = 1 if out_ports[port] == 0 else 0
+        r_send(out_ports)
+
+    if sensor is None and time is None:
+        out_ports[port] = value
         r_send(out_ports)
 
 

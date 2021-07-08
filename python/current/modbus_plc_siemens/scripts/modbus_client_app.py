@@ -49,13 +49,13 @@ if __name__ == "__main__":
 
         try:
             if command == "1":
-                run_a()
+                r_post(run_a)
             elif command == "2":
-                run_b()
+                r_post(run_b)
             elif command == "3":
-                run_c()
+                r_post(run_c)
             elif command == "4":
-                run_d()
+                r_post(run_d)
             else:
                 exec(command)
         except:
