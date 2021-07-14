@@ -1,6 +1,7 @@
 import sys
 
 from modbus.modbus_wrapper import ModbusWrapperClient
+from modbus.post_threading import Post
 
 
 class ModbusClient(ModbusWrapperClient):
@@ -15,6 +16,7 @@ class ModbusClient(ModbusWrapperClient):
         """
 
         ModbusWrapperClient.__init__(self, host, port, rate, reset_registers)
+
         self.setReadingRegisters(0, 112)
         self.setWritingRegisters(112, 106)
         self.startListening()

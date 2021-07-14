@@ -1,166 +1,162 @@
 import rospy
 
-from threading import Thread
 from std_msgs.msg import Int32MultiArray as HoldingRegister
+from modbus.post_threading import Post
+from modbus.post_threading import thread_list
 
 
 ######################
 # ROS and FT methods #
 ######################
 
+
 in_ports = []
 out_ports = [0 for i in range(106)]
 
-
-def r_error(msg):
-    """
-        Print ROS error message
-        :param msg: Message to print
-        :type msg: String
-    """
-    rospy.logerr(msg)
+action_threads = []
 
 
-def r_get(port):
-    """
-        Get input port value
-        :param port: Input port number
-        :type port: int in range (0, 112)
-    """
-    # r_print(in_ports)
-    return in_ports[0][port]
-
-
-def r_print(msg):
-    """
-        Print ROS message
-        :param msg: Message to print
-        :type msg: String
-    """
-    rospy.loginfo(msg)
-
-
-def r_post(command, args=None):
-    """
-        Run command in a new thread
-        :param command: Command to run
-        :type command: String
-        :param args:
-    """
+class RApi:
     th = None
 
-    if args is not None:
-        th = Thread(target=command, args=args)
-    else:
-        th = Thread(target=command)
+    def __init__(self):
+        self.post = Post(self)
 
-    th.daemon = True
-    th.start()
+    def s(self):
+        self.post.set(28, 1, time=100)
 
+    @staticmethod
+    def error(msg):
+        """
+            Print ROS error message
+            :param msg: Message to print
+            :type msg: String
+        """
+        rospy.logerr(msg)
 
-def r_send(value=None):
-    """
-        Set output ports
-        :param value: Output ports' value list
-        :type value: list in range (0, 112)
-    """
-    global output
+    def get(self, port):
+        """
+            Get input port value
+            :param port: Input port number
+            :type port: int in range (0, 112)
+        """
+        # r_print(in_ports)
+        return in_ports[0][port]
 
-    if value is None:
-        output.data = out_ports
-    else:
-        output.data = value
+    # def r_kill(th):
+    #     th
 
-    pub.publish(output)
+    def print(self, msg):
+        """
+            Print ROS message
+            :param msg: Message to print
+            :type msg: String
+        """
+        rospy.loginfo(msg)
 
+    # def r_post(command):
+    #     """
+    #         Run command in a new thread
+    #         :param command: Command to run
+    #         :type command: String
+    #     """
+    #     th =
 
-def r_set(port, value=1, sensor=None, time=None):
-    """
-        Set specified output port
-        :param port: Register number
-        :type port: int in range (0, 106)
-        :param value: Value to set
-        :type value: int (0 or 1 only)
-        :param sensor: Sensor port number
-                       Resets port value after sensor value changed
-        :type port: int in range (0, 112)
-        :param time: Timer to revert value
-        :type time: float
-    """
-    global out_ports
+    def send(self, value=None):
+        """
+            Set output ports
+            :param value: Output ports' value list
+            :type value: list in range (0, 112)
+        """
+        output = self.output
 
-    if sensor is not None:
-        out_ports[port] = value
-        r_send(out_ports)
+        if value is None:
+            output.data = out_ports
+        else:
+            output.data = value
 
-        value = r_get(sensor)
+        self.pub.publish(output)
 
-        while r_get(sensor) == value:
-            r_sleep(0.001)
+    def set(self, port, value=1, sensor=None, time=None):
+        """
+            Set specified output port
+            :param port: Register number
+            :type port: int in range (0, 106)
+            :param value: Value to set
+            :type value: int (0 or 1 only)
+            :param sensor: Sensor port number
+                           Resets port value after sensor value changed
+            :type port: int in range (0, 112)
+            :param time: Timer to revert value
+            :type time: float
+        """
+        global out_ports
 
-        out_ports[port] = 1 if out_ports[port] == 0 else 0
-        r_send(out_ports)
+        if sensor is not None:
+            out_ports[port] = value
+            self.send(out_ports)
 
-    if time is not None:
-        out_ports[port] = value
-        r_send(out_ports)
+            value = self.get(sensor)
 
-        r_sleep(time)
+            while self.get(sensor) == value:
+                self.sleep(0.001)
 
-        out_ports[port] = 1 if out_ports[port] == 0 else 0
-        r_send(out_ports)
+            out_ports[port] = 1 if out_ports[port] == 0 else 0
+            self.send(out_ports)
 
-    if sensor is None and time is None:
-        out_ports[port] = value
-        r_send(out_ports)
+        if time is not None:
+            out_ports[port] = value
+            self.send(out_ports)
 
+            self.sleep(time)
 
-def r_sleep(time):
-    """
-        Sleep timer
-        :param time: Seconds to sleep
-        :type time: float
-    """
-    rospy.sleep(time)
+            out_ports[port] = 1 if out_ports[port] == 0 else 0
+            self.send(out_ports)
 
+        if sensor is None and time is None:
+            out_ports[port] = value
+            self.send(out_ports)
 
-def r_wait():
-    """
-        Wait until Ctrl-C is pressed
-    """
-    rospy.spin()
+    def sleep(self, time):
+        """
+            Sleep timer
+            :param time: Seconds to sleep
+            :type time: float
+        """
+        rospy.sleep(time)
 
+    def wait(self):
+        """
+            Wait until Ctrl-C is pressed
+        """
+        rospy.spin()
 
-##################
-# ROS Subscriber #
-##################
+    ##################
+    # ROS Subscriber #
+    ##################
 
-def __in_ports_update(msg):
-    """
-        Service func to read input ports
-        and write them to in_ports list
-        to make them available in app
-    """
-    global in_ports
+    def __in_ports_update(msg):
+        """
+            Service func to read input ports
+            and write them to in_ports list
+            to make them available in app
+        """
+        global in_ports
 
-    del in_ports[0: len(in_ports)]
-    in_ports.append(msg.data)
+        del in_ports[0: len(in_ports)]
+        in_ports.append(msg.data)
 
-    # r_print(str(ports))
+    sub = rospy.Subscriber("modbus_wrapper/input",
+                           HoldingRegister,
+                           __in_ports_update,
+                           queue_size=500)
 
+    #################
+    # ROS Publisher #
+    #################
 
-sub = rospy.Subscriber("modbus_wrapper/input",
-                       HoldingRegister,
-                       __in_ports_update,
-                       queue_size=500)
+    pub = rospy.Publisher("modbus_wrapper/output",
+                          HoldingRegister,
+                          queue_size=500)
 
-
-#################
-# ROS Publisher #
-#################
-
-pub = rospy.Publisher("modbus_wrapper/output",
-                      HoldingRegister,
-                      queue_size=500)
-output = HoldingRegister()
-
+    output = HoldingRegister()

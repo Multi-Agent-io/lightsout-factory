@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from modbus_plc_siemens.r_api import *
-from modbus_plc_siemens.algorithms import *
+# from modbus_plc_siemens.algorithms import *
 from modbus_plc_siemens.client_init import ModbusClient
 
 
@@ -19,20 +19,22 @@ if __name__ == "__main__":
 
     modclient = None
 
+    R = RApi()
+
     try:
         modclient = ModbusClient(modbus_host, modbus_port)
-        r_print("Modbus client session successfully started")
+        R.print("Modbus client session successfully started")
     except:
-        r_error("Modbus client session failed to start")
+        R.error("Modbus client session failed to start")
         exit()
 
-    r_sleep(1)
+    R.sleep(1)
 
     # in_ports = modclient.readRegisters(0, 112), (1, 112)
-    r_print("Press any button on FT to proceed")
+    R.print("Press any button on FT to proceed")
 
     while not in_ports:
-        r_sleep(0.2)
+        R.sleep(0.2)
 
     # r_print(out_ports)
 
@@ -40,7 +42,7 @@ if __name__ == "__main__":
     #   Application     #
     #####################
 
-    r_print("Available commands: 1, 2, 3, 4, stop")
+    R.print("Available commands: 1, 2, 3, 4, stop")
 
     command = None
 
@@ -48,24 +50,25 @@ if __name__ == "__main__":
         command = input("Command: ")
 
         try:
-            if command == "1":
-                r_post(run_a)
-            elif command == "2":
-                r_post(run_b)
-            elif command == "3":
-                r_post(run_c)
-            elif command == "4":
-                r_post(run_d)
-            else:
-                exec(command)
-        except:
-            pass
+            # if command == "1":
+            #     R.post(run_a)
+            # elif command == "2":
+            #     R.post(run_b)
+            # elif command == "3":
+            #     R.post(run_c)
+            # elif command == "4":
+            #     R.post(run_d)
+            # else:
+            #     exec(command)
+            exec(command)
+        except Exception as e:
+            R.print(e)
 
     #####################
     #       Exit        #
     #####################
 
-    r_print("Shutting down modbus client session...")
+    R.print("Shutting down modbus client session...")
 
     try:
         rospy.signal_shutdown("Server shutting down")
