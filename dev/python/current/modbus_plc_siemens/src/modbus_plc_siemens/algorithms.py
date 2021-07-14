@@ -1,253 +1,267 @@
 from modbus_plc_siemens.r_api import *
 
+def pickup_block(column, line, way):
+    # move to necessary column
+	# (column+3) - column' register
+    if column != 1:
+        R.set(port=3, sensor=column+3)
 
-def pickup_block(way):
-    # move to necessary column (column №3)
-    r_set(3, 1, 6)
-    # move to necessary cell (line №4)
-    r_set(5, 1, 23)
+    # move to necessary cell
+	# (line+7)*2+1) - line' register
+    if line != 1:
+        R.set(port=5, sensor=(line+7)*2+1)
+    
     # pickup the block
-    r_set(8, 1, 25)
-    r_set(5, 1, 24)
-    r_set(7, 1, 26)
+	# ((line+8)*2) - line' register
+    R.set(port=8, sensor=25)
+    R.set(port=5, sensor=(line+8)*2)
+    R.set(port=7, sensor=26)
+    
     # deliver the block
-    if way == 1:
-        r_set(2, 1, 99)
-    elif way == 2:
-        r_set(3, 1, 100)
-    elif way == 3:
-        r_set(3, 1, 101)
-    elif way == 4:
-        r_set(3, 1, 102)
-
-    r_set(7, 1, 27)
-    r_set(6, 1, 17)
-    r_set(8, 1, 26)
+	# (way*3-(4-way)//2) - navigation
+	if column < (way*3-(4-way)//2):
+		R.set(port=3, sensor=way+98)
+	else:
+		R.set(port=2, sensor=way+98)
+    
+	R.set(port=7, sensor=27)
+    R.set(port=6, sensor=17)
+    R.set(port=8, sensor=26)
 
     # return to starting position
-    r_post(r_set, (2, 1, 4))
+    R.post.set(port=2, sensor=4)
 
 
 # ---------------------------------------
 
 def put_block():
     # pickup the block
-    r_set(16, 1, 96)
-    r_set(13, 1, 89)
-    r_set(15, 1, 97)
+    R.set(port=16, sensor=96)
+    R.set(port=13, sensor=89)
+    R.set(port=15, sensor=97)
     # move to necessary column (column №9)
-    r_set(10, 1, 83)
+    R.set(port=10, sensor=83)
     # move to necessary cell (line №4)
-    r_set(13, 1, 95)
+    R.set(port=13, sensor=95)
     # put the block
-    r_set(15, 1, 98)
-    r_set(14, 1, 94)
-    r_set(16, 1, 97)
+    R.set(port=15, sensor=98)
+    R.set(port=14, sensor=94)
+    R.set(port=16, sensor=97)
     # return to starting position
-    r_set(14, 1, 88)
-    r_set(11, 1, 86)
+    R.set(port=14, sensor=88)
+    R.set(port=11, sensor=86)
 
 
 # ---------------------------------------
 
-def run_a():
-    pickup_block(1)
+colors = {
+	0: '\nBlack color',
+	1: '\nYellow block',
+	2: '\nBlue block',
+	3: '\nGreen block',
+	4: '\nPurple block',
+	5: '\nUnknown color'
+}
+def straight_move():
+	R.post.set(port=90, sensor=72)
+    R.set(port=93, sensor=72)
+
+    R.post.set(port=87, sensor=70)
+    R.sleep(1)
+	
+	# color detection
+	print(colors[R.get(port=0)])
+
+    R.post.set(port=93, sensor=73)
+
+    # timer for right pick-up position
+    R.set(port=95, sensor=73, time=0.25)
+
+
+# ---------------------------------------
+
+def run_a(column, line):
+    if (column<1 or column>12) or (line<1 or line>4):
+		print('\nIncorrect column or line')
+		return
+	
+	pickup_block(column, line, 1)
     # ----------------------------
-    r_post(r_set, (19, 1, 33))
-    r_set(21, 1, 33)
+    R.post.set(port=19, sensor=33)
+    R.set(port=21, sensor=33)
 
     # handler work
-    r_set(22, 1, 34)
-    r_set(25, 1, 36)
-    r_set(26, 1, time=1)
-    r_set(24, 1, 37)
-    r_set(23, 1, 35)
+    R.set(port=22, sensor=34)
+    R.set(port=25, sensor=36)
+    R.set(port=26, time=1)
+    R.set(port=24, sensor=37)
+    R.set(port=23, sensor=35)
 
-    if r_get(39) == 1:
-        r_set(31, 1, 39)
+    if R.get(port=39) == 1:
+        R.set(port=31, sensor=39)
 
-    r_post(r_set, (21, 1, 38))
-    r_set(33, 1, 38)
+    R.post.set(port=21, sensor=38)
+    R.set(port=33, sensor=38)
 
-    r_set(30, 1, 40)
+    R.set(port=30, sensor=40)
     # ----------------------------
 
-    r_post(r_set, (33, 1, 41))
-    r_set(35, 1, 41)
+    R.post.set(port=33, sensor=41)
+    R.set(port=35, sensor=41)
 
-    if r_get(50) == 1:
-        r_set(50, 1, 50)
+    if R.get(port=50) == 1:
+        R.set(port=50, sensor=50)
 
-    r_post(r_set, (35, 1, 48))
-    r_set(52, 1, 48)
+    R.post.set(port=35, sensor=48)
+    R.set(port=52, sensor=48)
 
-    r_post(r_set, (52, 1, 51))
-    r_set(54, 1, 51)
+    R.post.set(port=52, sensor=51)
+    R.set(port=54, sensor=51)
 
-    if r_get(60) == 1:
-        r_set(68, 1, 60)
+    if R.get(port=60) == 1:
+        R.set(port=68, sensor=60)
 
-    r_post(r_set, (54, 1, 58))
-    r_set(71, 1, 58)
+    R.post.set(port=54, sensor=58)
+    R.set(port=71, sensor=58)
 
-    r_post(r_set, (71, 1, 61))
-    r_set(73, 1, 61)
+    R.post.set(port=71, sensor=61)
+    R.set(port=73, sensor=61)
 
-    if r_get(70) == 1:
-        r_set(87, 1, 70)
+    if R.get(port=70) == 1:
+        R.set(port=87, sensor=70)
 
-    r_post(r_set, (73, 1, 68))
-    r_set(90, 1, 68)
+    R.post.set(port=73, sensor=68)
+    R.set(port=90, sensor=68)
 
     # ----------------------------
-    r_set(88, 1, 69)
+    R.set(port=88, sensor=69)
 
-    r_post(r_set, (90, 1, 72))
-    r_set(93, 1, 72)
-
-    r_post(r_set, (87, 1, 70))
-    r_sleep(1)  # color detection
-
-    r_post(r_set, (93, 1, 73))
-    r_set(95, 1, 73)
-    # ----------------------------
+    straight_move()
     put_block()
 
 
 # ---------------------------------------
 
-def run_b():
-    pickup_block(2)
+def run_b(column, line):
+    if (column<1 or column>12) or (line<1 or line>4):
+		print('\nIncorrect column or line')
+		return
+	
+	pickup_block(column, line, 2)
     # ----------------------------
-    r_post(r_set, (38, 1, 43))
-    r_set(40, 1, 43)
+    R.post.set(port=38, sensor=43)
+    R.set(port=40, sensor=43)
 
     # handler work
-    r_set(41, 1, 44)
-    r_set(43, 1, 46)
-    r_set(45, 1, time=1)
-    r_set(44, 1, 47)
-    r_set(42, 1, 45)
+    R.set(port=41, sensor=44)
+    R.set(port=43, sensor=46)
+    R.set(port=45, time=1)
+    R.set(port=44, sensor=47)
+    R.set(port=42, sensor=45)
 
-    if r_get(49) == 1:
-        r_set(49, 1, 49)
+    if R.get(port=49) == 1:
+        R.set(port=49, sensor=49)
 
-    r_post(r_set, (40, 1, 48))
-    r_set(52, 1, 48)
+    R.post.set(port=40, sensor=48)
+    R.set(port=52, sensor=48)
 
-    r_set(50, 1, 50)
+    R.set(port=50, sensor=50)
     # ----------------------------
 
-    r_post(r_set, (52, 1, 51))
-    r_set(54, 1, 51)
+    R.post.set(port=52, sensor=51)
+    R.set(port=54, sensor=51)
 
-    if r_get(60) == 1:
-        r_set(68, 1, 60)
+    if R.get(port=60) == 1:
+        R.set(port=68, sensor=60)
 
-    r_post(r_set, (54, 1, 58))
-    r_set(71, 1, 58)
+    R.post.set(port=54, sensor=58)
+    R.set(port=71, sensor=58)
 
-    r_post(r_set, (71, 1, 61))
-    r_set(73, 1, 61)
+    R.post.set(port=71, sensor=61)
+    R.set(port=73, sensor=61)
 
-    if r_get(70) == 1:
-        r_set(87, 1, 70)
+    if R.get(port=70) == 1:
+        R.set(port=87, sensor=70)
 
-    r_post(r_set, (73, 1, 68))
-    r_set(90, 1, 68)
+    R.post.set(port=73, sensor=68)
+    R.set(port=90, sensor=68)
 
     # ----------------------------
-    r_set(88, 1, 69)
+    R.set(port=88, sensor=69)
 
-    r_post(r_set, (90, 1, 72))
-    r_set(93, 1, 72)
-
-    r_post(r_set, (87, 1, 70))
-    r_sleep(1)  # color detection
-
-    r_post(r_set, (93, 1, 73))
-    r_set(95, 1, 73)
-    # ----------------------------
+    straight_move()
     put_block()
 
 
 # ---------------------------------------
 
-def run_c():
-    pickup_block(3)
+def run_c(column, line):
+    if (column<1 or column>12) or (line<1 or line>4):
+		print('\nIncorrect column or line')
+		return
+	
+	pickup_block(column, line, 3)
     # ----------------------------
-    r_post(r_set, (57, 1, 53))
-    r_set(59, 1, 53)
+    R.post.set(port=57, sensor=53)
+    R.set(port=59, sensor=53)
 
     # handler work
-    r_set(60, 1, 64)
-    r_set(62, 1, 56)
-    r_set(64, 1, time=1)
-    r_set(63, 1, 57)
-    r_set(61, 1, 65)
+    R.set(port=60, sensor=54)
+    R.set(port=62, sensor=56)
+    R.set(port=64, time=1)
+    R.set(port=63, sensor=57)
+    R.set(port=61, sensor=55)
 
-    if r_get(59) == 1:
-        r_set(69, 1, 59)
+    if R.get(port=59) == 1:
+        R.set(port=69, sensor=59)
 
-    r_post(r_set, (59, 1, 58))
-    r_set(71, 1, 58)
+    R.post.set(port=59, sensor=58)
+    R.set(port=71, sensor=58)
 
-    r_set(68, 1, 60)
+    R.set(port=68, sensor=60)
     # ----------------------------
 
-    r_post(r_set, (71, 1, 61))
-    r_set(73, 1, 61)
+    R.post.set(port=71, sensor=61)
+    R.set(port=73, sensor=61)
 
-    if r_get(70) == 1:
-        r_set(87, 1, 70)
+    if R.get(port=70) == 1:
+        R.set(port=87, sensor=70)
 
-    r_post(r_set, (73, 1, 68))
-    r_set(90, 1, 68)
+    R.post.set(port=73, sensor=68)
+    R.set(port=90, sensor=68)
 
     # ----------------------------
-    r_set(88, 1, 69)
+    R.set(port=88, sensor=69)
 
-    r_post(r_set, (90, 1, 72))
-    r_set(93, 1, 72)
-
-    r_post(r_set, (87, 1, 70))
-    r_sleep(1)  # color detection
-
-    r_post(r_set, (93, 1, 73))
-    r_set(95, 1, 73)
-    # ----------------------------
+    straight_move()
     put_block()
 
 
 # ---------------------------------------
 
-def run_d():
-    pickup_block(4)
+def run_d(column, line):
+	if (column<1 or column>12) or (line<1 or line>4):
+		print('\nIncorrect column or line')
+		return
+    
+	pickup_block(column, line, 4)
     # ----------------------------
-    r_post(r_set, (76, 1, 63))
-    r_set(78, 1, 63)
+    R.post.set(port=76, sensor=63)
+    R.set(port=78, sensor=63)
 
     # handler work
-    r_set(79, 1, 64)
-    r_set(81, 1, 66)
-    r_set(83, 1, time=1)
-    r_set(96, 1, time=1)
-    r_set(82, 1, 67)
-    r_set(80, 1, 65)
+    R.set(port=79, sensor=64)
+    R.set(port=81, sensor=66)
+    R.set(port=96, time=1)
+    R.set(port=83, time=1)
+    R.set(port=82, sensor=67)
+    R.set(port=80, sensor=65)
 
-    if r_get(69) == 1:
-        r_set(88, 1, 69)
+    if R.get(port=69) == 1:
+        R.set(port=88, sensor=69)
 
-    r_post(r_set, (78, 1, 68))
-    r_set(90, 1, 68)
+    R.post.set(port=78, sensor=68)
+    R.set(port=90, sensor=68)
 
-    r_post(r_set, (90, 1, 72))
-    r_set(93, 1, 72)
-
-    r_set(30, 1, 70)
-    r_sleep(1)  # color detection
-
-    r_post(r_set, (93, 1, 73))
-    r_set(95, 1, 73)
-    # ----------------------------
+    straight_move()
     put_block()
