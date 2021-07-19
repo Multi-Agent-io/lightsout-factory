@@ -1,267 +1,268 @@
-from modbus_plc_siemens.r_api import *
-
-def pickup_block(column, line, way):
+def pickup_block(self, column, line, way):
     # move to necessary column
-	# (column+3) - column' register
+    # (column+3) - column' register
     if column != 1:
-        R.set(port=3, sensor=column+3)
+        self.set(3, column+3)
 
     # move to necessary cell
-	# (line+7)*2+1) - line' register
+    # (line+7)*2+1) - line' register
     if line != 1:
-        R.set(port=5, sensor=(line+7)*2+1)
+        self.set(5, (line+7)*2+1)
     
     # pickup the block
-	# ((line+8)*2) - line' register
-    R.set(port=8, sensor=25)
-    R.set(port=5, sensor=(line+8)*2)
-    R.set(port=7, sensor=26)
+    # ((line+8)*2) - line' register
+    self.set(8, 25)
+    self.set(5, (line+8)*2)
+    self.set(7, 26)
     
     # deliver the block
-	# (way*3-(4-way)//2) - navigation
-	if column < (way*3-(4-way)//2):
-		R.set(port=3, sensor=way+98)
-	else:
-		R.set(port=2, sensor=way+98)
+    # (way*3-(4-way)//2) - navigation
+    if column < (way*3-(4-way)//2):
+        self.set(3, way+98)
+    else:
+        self.set(2, way+98)
     
-	R.set(port=7, sensor=27)
-    R.set(port=6, sensor=17)
-    R.set(port=8, sensor=26)
+    self.set(7, 27)
+    self.set(6, 17)
+    self.set(8, 26)
 
     # return to starting position
-    R.post.set(port=2, sensor=4)
+    self.post.set(2, 4)
 
 
 # ---------------------------------------
 
-def put_block():
+def put_block(self):
     # pickup the block
-    R.set(port=16, sensor=96)
-    R.set(port=13, sensor=89)
-    R.set(port=15, sensor=97)
+    self.set(16, 96)
+    self.set(13, 89)
+    self.set(15, 97)
     # move to necessary column (column №9)
-    R.set(port=10, sensor=83)
+    self.set(10, 83)
     # move to necessary cell (line №4)
-    R.set(port=13, sensor=95)
+    self.set(13, 95)
     # put the block
-    R.set(port=15, sensor=98)
-    R.set(port=14, sensor=94)
-    R.set(port=16, sensor=97)
+    self.set(15, 98)
+    self.set(14, 94)
+    self.set(16, 97)
     # return to starting position
-    R.set(port=14, sensor=88)
-    R.set(port=11, sensor=86)
+    self.set(14, 88)
+    self.set(11, 86)
 
 
 # ---------------------------------------
 
-colors = {
-	0: '\nBlack color',
-	1: '\nYellow block',
-	2: '\nBlue block',
-	3: '\nGreen block',
-	4: '\nPurple block',
-	5: '\nUnknown color'
-}
-def straight_move():
-	R.post.set(port=90, sensor=72)
-    R.set(port=93, sensor=72)
+colors = (
+    'Black color',
+    'Yellow block',
+    'Blue block',
+    'Green block',
+    'Purple block',
+    'Unknown color'
+)
+def straight_move(self):
+    self.post.set(90, 72)
+    self.set(93, 72)
 
-    R.post.set(port=87, sensor=70)
-    R.sleep(1)
-	
-	# color detection
-	print(colors[R.get(port=0)])
+    self.post.set(87, 70)
+    self.sleep(1)
+    
+    # color detection
+    print(colors[self.get(0)])
 
-    R.post.set(port=93, sensor=73)
+    self.post.set(93, 73)
 
     # timer for right pick-up position
-    R.set(port=95, sensor=73, time=0.25)
+    self.set(95, 73, time=0.25)
 
 
 # ---------------------------------------
 
-def run_a(column, line):
-    if (column<1 or column>12) or (line<1 or line>4):
-		print('\nIncorrect column or line')
-		return
-	
-	pickup_block(column, line, 1)
-    # ----------------------------
-    R.post.set(port=19, sensor=33)
-    R.set(port=21, sensor=33)
-
-    # handler work
-    R.set(port=22, sensor=34)
-    R.set(port=25, sensor=36)
-    R.set(port=26, time=1)
-    R.set(port=24, sensor=37)
-    R.set(port=23, sensor=35)
-
-    if R.get(port=39) == 1:
-        R.set(port=31, sensor=39)
-
-    R.post.set(port=21, sensor=38)
-    R.set(port=33, sensor=38)
-
-    R.set(port=30, sensor=40)
-    # ----------------------------
-
-    R.post.set(port=33, sensor=41)
-    R.set(port=35, sensor=41)
-
-    if R.get(port=50) == 1:
-        R.set(port=50, sensor=50)
-
-    R.post.set(port=35, sensor=48)
-    R.set(port=52, sensor=48)
-
-    R.post.set(port=52, sensor=51)
-    R.set(port=54, sensor=51)
-
-    if R.get(port=60) == 1:
-        R.set(port=68, sensor=60)
-
-    R.post.set(port=54, sensor=58)
-    R.set(port=71, sensor=58)
-
-    R.post.set(port=71, sensor=61)
-    R.set(port=73, sensor=61)
-
-    if R.get(port=70) == 1:
-        R.set(port=87, sensor=70)
-
-    R.post.set(port=73, sensor=68)
-    R.set(port=90, sensor=68)
-
-    # ----------------------------
-    R.set(port=88, sensor=69)
-
-    straight_move()
-    put_block()
-
-
-# ---------------------------------------
-
-def run_b(column, line):
-    if (column<1 or column>12) or (line<1 or line>4):
-		print('\nIncorrect column or line')
-		return
-	
-	pickup_block(column, line, 2)
-    # ----------------------------
-    R.post.set(port=38, sensor=43)
-    R.set(port=40, sensor=43)
-
-    # handler work
-    R.set(port=41, sensor=44)
-    R.set(port=43, sensor=46)
-    R.set(port=45, time=1)
-    R.set(port=44, sensor=47)
-    R.set(port=42, sensor=45)
-
-    if R.get(port=49) == 1:
-        R.set(port=49, sensor=49)
-
-    R.post.set(port=40, sensor=48)
-    R.set(port=52, sensor=48)
-
-    R.set(port=50, sensor=50)
-    # ----------------------------
-
-    R.post.set(port=52, sensor=51)
-    R.set(port=54, sensor=51)
-
-    if R.get(port=60) == 1:
-        R.set(port=68, sensor=60)
-
-    R.post.set(port=54, sensor=58)
-    R.set(port=71, sensor=58)
-
-    R.post.set(port=71, sensor=61)
-    R.set(port=73, sensor=61)
-
-    if R.get(port=70) == 1:
-        R.set(port=87, sensor=70)
-
-    R.post.set(port=73, sensor=68)
-    R.set(port=90, sensor=68)
-
-    # ----------------------------
-    R.set(port=88, sensor=69)
-
-    straight_move()
-    put_block()
-
-
-# ---------------------------------------
-
-def run_c(column, line):
-    if (column<1 or column>12) or (line<1 or line>4):
-		print('\nIncorrect column or line')
-		return
-	
-	pickup_block(column, line, 3)
-    # ----------------------------
-    R.post.set(port=57, sensor=53)
-    R.set(port=59, sensor=53)
-
-    # handler work
-    R.set(port=60, sensor=54)
-    R.set(port=62, sensor=56)
-    R.set(port=64, time=1)
-    R.set(port=63, sensor=57)
-    R.set(port=61, sensor=55)
-
-    if R.get(port=59) == 1:
-        R.set(port=69, sensor=59)
-
-    R.post.set(port=59, sensor=58)
-    R.set(port=71, sensor=58)
-
-    R.set(port=68, sensor=60)
-    # ----------------------------
-
-    R.post.set(port=71, sensor=61)
-    R.set(port=73, sensor=61)
-
-    if R.get(port=70) == 1:
-        R.set(port=87, sensor=70)
-
-    R.post.set(port=73, sensor=68)
-    R.set(port=90, sensor=68)
-
-    # ----------------------------
-    R.set(port=88, sensor=69)
-
-    straight_move()
-    put_block()
-
-
-# ---------------------------------------
-
-def run_d(column, line):
-	if (column<1 or column>12) or (line<1 or line>4):
-		print('\nIncorrect column or line')
-		return
+def run_a(self, column, line):
+    if (column not in range(1,13)) or (line not in range(1,5)):
+        print('Incorrect column or line')
+        return
     
-	pickup_block(column, line, 4)
+    pickup_block(column, line, 1)
     # ----------------------------
-    R.post.set(port=76, sensor=63)
-    R.set(port=78, sensor=63)
+    self.post.set(19, 33)
+    self.set(21, 33)
 
     # handler work
-    R.set(port=79, sensor=64)
-    R.set(port=81, sensor=66)
-    R.set(port=96, time=1)
-    R.set(port=83, time=1)
-    R.set(port=82, sensor=67)
-    R.set(port=80, sensor=65)
+    self.set(22, 34)
+    self.set(25, 36)
+    self.set(26, time=1)
+    self.set(24, 37)
+    self.set(23, 35)
 
-    if R.get(port=69) == 1:
-        R.set(port=88, sensor=69)
+    if self.get(39) == 1:
+        self.set(31, 39)
 
-    R.post.set(port=78, sensor=68)
-    R.set(port=90, sensor=68)
+    self.post.set(21, 38)
+    self.set(33, 38)
+
+    self.set(30, 40)
+    # ----------------------------
+    
+    # general line movement
+    self.post.set(33, 41)
+    self.set(35, 41)
+
+    if self.get(50) == 1:
+        self.set(50, 50)
+
+    self.post.set(35, 48)
+    self.set(52, 48)
+
+    self.post.set(52, 51)
+    self.set(54, 51)
+
+    if self.get(60) == 1:
+        self.set(68, 60)
+
+    self.post.set(54, 58)
+    self.set(71, 58)
+
+    self.post.set(71, 61)
+    self.set(73, 61)
+
+    if self.get(70) == 1:
+        self.set(87, 70)
+
+    self.post.set(73, 68)
+    self.set(90, 68)
+
+    # ----------------------------
+    self.set(88, 69)
+
+    straight_move()
+    put_block()
+
+
+# ---------------------------------------
+
+def run_b(self, column, line):
+    if (column not in range(1,13)) or (line not in range(1,5)):
+        print('Incorrect column or line')
+        return
+    
+    pickup_block(column, line, 2)
+    # ----------------------------
+    self.post.set(38, 43)
+    self.set(40, 43)
+
+    # handler work
+    self.set(41, 44)
+    self.set(43, 46)
+    self.set(45, time=1)
+    self.set(44, 47)
+    self.set(42, 45)
+
+    if self.get(49) == 1:
+        self.set(49, 49)
+
+    self.post.set(40, 48)
+    self.set(52, 48)
+
+    self.set(50, 50)
+    # ----------------------------
+
+    # general line movement
+    self.post.set(52, 51)
+    self.set(54, 51)
+
+    if self.get(60) == 1:
+        self.set(68, 60)
+
+    self.post.set(54, 58)
+    self.set(71, 58)
+
+    self.post.set(71, 61)
+    self.set(73, 61)
+
+    if self.get(70) == 1:
+        self.set(87, 70)
+
+    self.post.set(73, 68)
+    self.set(90, 68)
+
+    # ----------------------------
+    self.set(88, 69)
+
+    straight_move()
+    put_block()
+
+
+# ---------------------------------------
+
+def run_c(self, column, line):
+    if (column not in range(1,13)) or (line not in range(1,5)):
+        print('Incorrect column or line')
+        return
+    
+    pickup_block(column, line, 3)
+    # ----------------------------
+    self.post.set(57, 53)
+    self.set(59, 53)
+
+    # handler work
+    self.set(60, 54)
+    self.set(62, 56)
+    self.set(64, time=1)
+    self.set(63, 57)
+    self.set(61, 55)
+
+    if self.get(59) == 1:
+        self.set(69, 59)
+
+    self.post.set(59, 58)
+    self.set(71, 58)
+
+    self.set(68, 60)
+    # ----------------------------
+
+    # general line movement
+    self.post.set(71, 61)
+    self.set(73, 61)
+
+    if self.get(70) == 1:
+        self.set(87, 70)
+
+    self.post.set(73, 68)
+    self.set(90, 68)
+
+    # ----------------------------
+    self.set(88, 69)
+
+    straight_move()
+    put_block()
+
+
+# ---------------------------------------
+
+def run_d(self, column, line):
+    if (column not in range(1,13)) or (line not in range (1,5)):
+        print('Incorrect column or line')
+        return
+    
+    pickup_block(column, line, 4)
+    # ----------------------------
+    self.post.set(76, 63)
+    self.set(78, 63)
+
+    # handler work
+    self.set(79, 64)
+    self.set(81, 66)
+    self.set(96, time=1)
+    self.set(83, time=1)
+    self.set(82, 67)
+    self.set(80, 65)
+
+    if self.get(69) == 1:
+        self.set(88, 69)
+
+    self.post.set(78, 68)
+    self.set(90, 68)
 
     straight_move()
     put_block()

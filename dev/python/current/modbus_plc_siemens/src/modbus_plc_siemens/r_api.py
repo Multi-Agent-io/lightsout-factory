@@ -17,6 +17,7 @@ action_threads = []
 
 
 class RApi:
+    from modbus_plc_siemens.algorithms import pickup_block, put_block, straight_move, run_a, run_b, run_c, run_d
     th = None
 
     def __init__(self):
@@ -77,16 +78,16 @@ class RApi:
 
         self.pub.publish(output)
 
-    def set(self, port, value=1, sensor=None, time=None):
+    def set(self, port, sensor=None, value=1, time=None):
         """
             Set specified output port
             :param port: Register number
             :type port: int in range (0, 106)
+            :param sensor: Sensor port number
+                            Resets port value after sensor value changed
+            :type sensor: int in range (0, 112)
             :param value: Value to set
             :type value: int (0 or 1 only)
-            :param sensor: Sensor port number
-                           Resets port value after sensor value changed
-            :type port: int in range (0, 112)
             :param time: Timer to revert value
             :type time: float
         """
