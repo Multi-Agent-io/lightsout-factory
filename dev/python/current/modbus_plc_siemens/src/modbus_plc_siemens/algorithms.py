@@ -1,4 +1,9 @@
-def pickup_block(self, column, line, way):
+# --------------------------------------------------------------------------------
+
+def pickup_block(self, coord, way):
+    column = coord[0]
+    line = coord[1]
+    
     # move to necessary column
     # (column+3) - column' register
     if column != 1:
@@ -30,27 +35,34 @@ def pickup_block(self, column, line, way):
     self.post.set(2, 4)
 
 
-# ---------------------------------------
+# --------------------------------------------------------------------------------
 
-def put_block(self):
-    # pickup the block
+def put_block(self, coord):
+    column = coord[0]
+    line = coord[1]
+    
+    # pickup the block / move to necessary line
+    # (line+43)*2+1) - line' register
     self.set(16, 96)
-    self.set(13, 89)
+    self.set(13, (line+43)*2+1)
     self.set(15, 97)
-    # move to necessary column (column №9)
-    self.set(10, 83)
-    # move to necessary cell (line №4)
-    self.set(13, 95)
+    # move to necessary cell
+    # (column+74) - column' register
+    if column != 12:
+        self.set(10, column+74)
+    
     # put the block
+    # (line+43)*2) - line' register
     self.set(15, 98)
-    self.set(14, 94)
+    self.set(14, (line+43)*2)
     self.set(16, 97)
     # return to starting position
-    self.set(14, 88)
+    if line != 1:
+        self.set(14, 88)
     self.set(11, 86)
 
 
-# ---------------------------------------
+# --------------------------------------------------------------------------------
 
 colors = (
     'Black color',
@@ -76,15 +88,18 @@ def straight_move(self):
     self.set(95, 73, time=0.25)
 
 
-# ---------------------------------------
+# --------------------------------------------------------------------------------
 
-def run_a(self, column, line):
-    if (column not in range(1,13)) or (line not in range(1,5)):
-        print('Incorrect column or line')
+def run_a(self, pickup_coord, put_coord):
+    if (pickup_coord[0] not in range(1,13)) or (pickup_coord[1] not in range(1,5)):
+        print('Incorrect pickup-coordinates')
+        return
+    if (put_coord[0] not in range(1,13)) or (put_coord[1] not in range(1,5)):
+        print('Incorrect put-coordinates')
         return
     
-    pickup_block(column, line, 1)
-    # ----------------------------
+    pickup_block(self, pickup_coord, 1)
+    # ---------------------------------
     self.post.set(19, 33)
     self.set(21, 33)
 
@@ -102,7 +117,7 @@ def run_a(self, column, line):
     self.set(33, 38)
 
     self.set(30, 40)
-    # ----------------------------
+    # ---------------------------------
     
     # general line movement
     self.post.set(33, 41)
@@ -132,22 +147,25 @@ def run_a(self, column, line):
     self.post.set(73, 68)
     self.set(90, 68)
 
-    # ----------------------------
+    # ---------------------------------
     self.set(88, 69)
 
-    straight_move()
-    put_block()
+    straight_move(self)
+    put_block(self, put_coord)
 
 
-# ---------------------------------------
+# --------------------------------------------------------------------------------
 
-def run_b(self, column, line):
-    if (column not in range(1,13)) or (line not in range(1,5)):
-        print('Incorrect column or line')
+def run_b(self, pickup_coord, put_coord):
+    if (pickup_coord[0] not in range(1,13)) or (pickup_coord[1] not in range(1,5)):
+        print('Incorrect pickup-coordinates')
+        return
+    if (put_coord[0] not in range(1,13)) or (put_coord[1] not in range(1,5)):
+        print('Incorrect put-coordinates')
         return
     
-    pickup_block(column, line, 2)
-    # ----------------------------
+    pickup_block(self, pickup_coord, 2)
+    # ---------------------------------
     self.post.set(38, 43)
     self.set(40, 43)
 
@@ -165,7 +183,7 @@ def run_b(self, column, line):
     self.set(52, 48)
 
     self.set(50, 50)
-    # ----------------------------
+    # ---------------------------------
 
     # general line movement
     self.post.set(52, 51)
@@ -186,22 +204,25 @@ def run_b(self, column, line):
     self.post.set(73, 68)
     self.set(90, 68)
 
-    # ----------------------------
+    # ---------------------------------
     self.set(88, 69)
 
-    straight_move()
-    put_block()
+    straight_move(self)
+    put_block(self, put_coord)
 
 
-# ---------------------------------------
+# --------------------------------------------------------------------------------
 
-def run_c(self, column, line):
-    if (column not in range(1,13)) or (line not in range(1,5)):
-        print('Incorrect column or line')
+def run_c(self, pickup_coord, put_coord):
+    if (pickup_coord[0] not in range(1,13)) or (pickup_coord[1] not in range(1,5)):
+        print('Incorrect pickup-coordinates')
+        return
+    if (put_coord[0] not in range(1,13)) or (put_coord[1] not in range(1,5)):
+        print('Incorrect put-coordinates')
         return
     
-    pickup_block(column, line, 3)
-    # ----------------------------
+    pickup_block(self, pickup_coord, 3)
+    # ---------------------------------
     self.post.set(57, 53)
     self.set(59, 53)
 
@@ -219,7 +240,7 @@ def run_c(self, column, line):
     self.set(71, 58)
 
     self.set(68, 60)
-    # ----------------------------
+    # ---------------------------------
 
     # general line movement
     self.post.set(71, 61)
@@ -231,22 +252,25 @@ def run_c(self, column, line):
     self.post.set(73, 68)
     self.set(90, 68)
 
-    # ----------------------------
+    # ---------------------------------
     self.set(88, 69)
 
-    straight_move()
-    put_block()
+    straight_move(self)
+    put_block(self, put_coord)
 
 
-# ---------------------------------------
+# --------------------------------------------------------------------------------
 
-def run_d(self, column, line):
-    if (column not in range(1,13)) or (line not in range (1,5)):
-        print('Incorrect column or line')
+def run_d(self, pickup_coord, put_coord):
+    if (pickup_coord[0] not in range(1,13)) or (pickup_coord[1] not in range(1,5)):
+        print('Incorrect pickup-coordinates')
+        return
+    if (put_coord[0] not in range(1,13)) or (put_coord[1] not in range(1,5)):
+        print('Incorrect put-coordinates')
         return
     
-    pickup_block(column, line, 4)
-    # ----------------------------
+    pickup_block(self, pickup_coord, 4)
+    # ---------------------------------
     self.post.set(76, 63)
     self.set(78, 63)
 
@@ -264,5 +288,5 @@ def run_d(self, column, line):
     self.post.set(78, 68)
     self.set(90, 68)
 
-    straight_move()
-    put_block()
+    straight_move(self)
+    put_block(self, put_coord)
