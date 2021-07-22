@@ -48,7 +48,7 @@ def put_block(self, coord):
     self.set(15, 97)
     # move to necessary cell
     # (75+(12-column)) - column' register
-    if column != 12:
+    if column != 1:
         self.set(10, 75+(12-column))
     
     # put the block
@@ -59,20 +59,21 @@ def put_block(self, coord):
     # return to starting position
     if line != 1:
         self.set(14, 88)
-    if line != 12:
+    if column != 1:
         self.set(11, 86)
 
 
 # --------------------------------------------------------------------------------
 
 colors = (
-    'Black color',
-    'Yellow block',
-    'Blue block',
-    'Green block',
-    'Purple block',
-    'Unknown color'
+    'black color',
+    'yellow block',
+    'blue block',
+    'green block',
+    'purple block',
+    'unknown color'
 )
+
 def straight_move(self):
     self.post.set(90, 72)
     self.set(93, 72)
@@ -81,7 +82,7 @@ def straight_move(self):
     self.sleep(1)
     
     # color recognition block
-    print('Color recognintion block: ' + colors[self.get(0)])
+    print('- Color recognition block: ' + colors[self.get(0)])
 
     self.post.set(93, 73)
 
@@ -91,54 +92,74 @@ def straight_move(self):
 
 # --------------------------------------------------------------------------------
 
+# helping method - loader moving between the conveyors
+def act0(self, loader, direction, point):
+    if direction not in range(2):
+        print('- Error: incorrect direction')
+        return
+    if point not in ['a','b','c','d']:
+        print('- Error: incorrect point')
+        return
+    # ------------------------------------
+    if loader == 0:
+        if point == 'a':
+            self.set(3-direction, 99)
+        elif point == 'b':
+            self.set(3-direction, 100)
+        elif point == 'c':
+            self.set(3-direction, 101)
+        elif point == 'd':
+            self.set(3-direction, 102)
+    elif loader == 1:
+        if point == 'a':
+            self.set(direction+10, 99)
+        elif point == 'b':
+            self.set(direction+10, 100)
+        elif point == 'c':
+            self.set(direction+10, 101)
+        elif point == 'd':
+            self.set(direction+10, 102)
+    else:
+        print('- Error: incorrect loader number')
+
 # helping method - loader moving along the warehouse
 def act1(self, loader, direction, point):
-    if point not in range(1,13):
-        print('Error: Incorrect point')
+    if direction not in range(2):
+        print('- Error: incorrect direction')
         return
-    # ----------------------------------
+    if point not in range(1,13):
+        print('- Error: incorrect point')
+        return
+    # ------------------------------------
     if loader == 0:
-        if direction == 0:
-            self.set(3, point+3)
-        elif direction == 1:
-            self.set(2, point+3)
-        else:
-            print('Error: Incorrect direction')
+        self.set(3-direction, point+3)
     elif loader == 1:
-        if direction == 0:
-            self.set(10, 75+(12-point))
-        elif direction == 1:
-            self.set(11, 75+(12-point))
-        else:
-            print('Error: Incorrect direction')
+        self.set(direction+10, 75+(12-point))
     else:
-        print('Error: Incorrect loader number')
+        print('- Error: incorrect loader number')
 
 # helping method - loader moving up and down
 def act2(self, loader, direction, point):
-    if point not in range(1,9):
-        print('Error: Incorrect point')
+    if direction not in range(2):
+        print('- Error: incorrect direction')
         return
-    # ----------------------------------
+    if point not in range(1,9):
+        print('- Error: incorrect point')
+        return
+    # ------------------------------------
     if loader == 0:
-        if direction == 0:
-            self.set(5, point+16)
-        elif direction == 1:
-            self.set(6, point+16)
-        else:
-            print('Error: Incorrect direction')
+        self.set(direction+5, point+16)
     elif loader == 1:
-        if direction == 0:
-            self.set(13, point+87)
-        elif direction == 1:
-            self.set(14, point+87)
-        else:
-            print('Error: Incorrect direction')
+        self.set(direction+13, point+87)
     else:
-        print('Error: Incorrect loader number')
+        print('- Error: incorrect loader number')
 
 # helping method - cariage moving
 def act3(self, loader, action):
+    if action not in range(1,5):
+        print('- Error: incorrect action')
+        return
+    # ------------------------------------
     if loader == 0:
         if action == 1:
             self.set(7, 26)
@@ -148,8 +169,6 @@ def act3(self, loader, action):
             self.set(8, 26)
         elif action == 4:
             self.set(8, 25)
-        else:
-            print('Error: Incorrect action')
     elif loader == 1:
         if action == 1:
             self.set(16, 97)
@@ -159,20 +178,18 @@ def act3(self, loader, action):
             self.set(15, 97)
         elif action == 4:
             self.set(15, 98)
-        else:
-            print('Error: Incorrect action')
     else:
-        print('Error: Incorrect loader number')
+        print('- Error: incorrect loader number')
 
 
 # --------------------------------------------------------------------------------
 
 def run_a(self, pickup_coord, put_coord):
     if (pickup_coord[0] not in range(1,13)) or (pickup_coord[1] not in range(1,5)):
-        print('Error: Incorrect pickup-coordinates')
+        print('- Error: incorrect pickup-coordinates')
         return
     if (put_coord[0] not in range(1,13)) or (put_coord[1] not in range(1,5)):
-        print('Error: Incorrect put-coordinates')
+        print('- Error: incorrect put-coordinates')
         return
     
     pickup_block(self, pickup_coord, 1)
@@ -199,7 +216,9 @@ def run_a(self, pickup_coord, put_coord):
     # general line movement
     self.post.set(33, 41)
     self.set(35, 41)
-
+    
+    self.post.set(31, 39)
+    
     if self.get(50) == 1:
         self.set(50, 50)
 
@@ -235,10 +254,10 @@ def run_a(self, pickup_coord, put_coord):
 
 def run_b(self, pickup_coord, put_coord):
     if (pickup_coord[0] not in range(1,13)) or (pickup_coord[1] not in range(1,5)):
-        print('Error: Incorrect pickup-coordinates')
+        print('- Error: incorrect pickup-coordinates')
         return
     if (put_coord[0] not in range(1,13)) or (put_coord[1] not in range(1,5)):
-        print('Error: Incorrect put-coordinates')
+        print('- Error: incorrect put-coordinates')
         return
     
     pickup_block(self, pickup_coord, 2)
@@ -292,10 +311,10 @@ def run_b(self, pickup_coord, put_coord):
 
 def run_c(self, pickup_coord, put_coord):
     if (pickup_coord[0] not in range(1,13)) or (pickup_coord[1] not in range(1,5)):
-        print('Error: Incorrect pickup-coordinates')
+        print('- Error: incorrect pickup-coordinates')
         return
     if (put_coord[0] not in range(1,13)) or (put_coord[1] not in range(1,5)):
-        print('Error: Incorrect put-coordinates')
+        print('- Error: incorrect put-coordinates')
         return
     
     pickup_block(self, pickup_coord, 3)
@@ -340,10 +359,10 @@ def run_c(self, pickup_coord, put_coord):
 
 def run_d(self, pickup_coord, put_coord):
     if (pickup_coord[0] not in range(1,13)) or (pickup_coord[1] not in range(1,5)):
-        print('Error: Incorrect pickup-coordinates')
+        print('- Error: incorrect pickup-coordinates')
         return
     if (put_coord[0] not in range(1,13)) or (put_coord[1] not in range(1,5)):
-        print('Error: Incorrect put-coordinates')
+        print('- Error: incorrect put-coordinates')
         return
     
     pickup_block(self, pickup_coord, 4)

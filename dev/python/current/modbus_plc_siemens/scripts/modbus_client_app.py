@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+import sys
+from contextlib import suppress
+
 from modbus_plc_siemens.r_api import *
 # from modbus_plc_siemens.algorithms import *
 from modbus_plc_siemens.client_init import ModbusClient
@@ -24,8 +27,9 @@ if __name__ == "__main__":
     try:
         modclient = ModbusClient(modbus_host, modbus_port)
         R.print("Modbus client session successfully started")
-    except:
+    except Exception as e:
         R.error("Modbus client session failed to start")
+        R.error("[REASON] " + str(e))
         exit()
 
     R.sleep(1)
@@ -37,6 +41,7 @@ if __name__ == "__main__":
         R.sleep(0.2)
 
     # r_print(out_ports)
+
 
     #####################
     #   Application     #
@@ -60,19 +65,35 @@ if __name__ == "__main__":
             #     R.post(run_d)
             # else:
             #     exec(command)
-            exec(command)
+            if command == "stop":
+                sys.tracebacklimit = 0
+
+                with suppress(Exception):
+                    R.print("Shutting down modbus client session...")
+
+                    try:
+                        rospy.signal_shutdown("Server shutting down")
+                    except:
+                        pass
+
+                    exit(0)
+
+            else:
+                exec(command)
+
         except Exception as e:
-            R.print(e)
+            R.error("[REASON] " + str(e))
 
-    #####################
-    #       Exit        #
-    #####################
-
-    R.print("Shutting down modbus client session...")
-
-    try:
-        rospy.signal_shutdown("Server shutting down")
-    except:
-        pass
-
-    modclient.stopListening()
+    #
+    # #####################
+    # #       Exit        #
+    # #####################
+    #
+    # R.print("Shutting down modbus client session...")
+    #
+    # try:
+    #     rospy.signal_shutdown("Server shutting down")
+    # except:
+    #     pass
+    #
+    # modclient.stopListening()

@@ -2,7 +2,6 @@ import rospy
 
 from std_msgs.msg import Int32MultiArray as HoldingRegister
 from modbus.post_threading import Post
-from modbus.post_threading import thread_list
 
 
 ######################
@@ -18,7 +17,7 @@ action_threads = []
 
 class RApi:
     from modbus_plc_siemens.algorithms import run_a, run_b, run_c, run_d
-    from modbus_plc_siemens.algorithms import act1, act2, act3
+    from modbus_plc_siemens.algorithms import act0, act1, act2, act3
     th = None
 
     def __init__(self):
@@ -94,6 +93,7 @@ class RApi:
         """
         global out_ports
 
+        #if (sensor is not None) and (self.get(sensor) != value):
         if sensor is not None:
             out_ports[port] = value
             self.send(out_ports)
