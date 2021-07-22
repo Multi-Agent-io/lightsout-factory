@@ -18,6 +18,7 @@ action_threads = []
 
 class RApi:
     from modbus_plc_siemens.algorithms import run_a, run_b, run_c, run_d
+    from modbus_plc_siemens.algorithms import act1, act2, act3
     th = None
 
     def __init__(self):
