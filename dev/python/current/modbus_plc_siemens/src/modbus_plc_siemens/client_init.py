@@ -1,7 +1,4 @@
-import sys
-
 from modbus.modbus_wrapper import ModbusWrapperClient
-from modbus.post_threading import Post
 
 
 class ModbusClient(ModbusWrapperClient):

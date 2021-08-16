@@ -16,10 +16,15 @@ action_threads = []
 
 
 class RApi:
+
+    # noinspection PyUnresolvedReferences
     from modbus_plc_siemens.algorithms import show_warehouse, run_lights, run_a, run_b, run_c, run_d
+    # noinspection PyUnresolvedReferences
     from modbus_plc_siemens.algorithms import act0, act1, act2, act3
+
     th = None
-    
+
+
     def __init__(self):
         self.post = Post(self)
 
@@ -35,7 +40,8 @@ class RApi:
         """
         rospy.logerr(msg)
 
-    def get(self, port):
+    @staticmethod
+    def get(port):
         """
             Get input port value
             :param port: Input port number
@@ -48,9 +54,11 @@ class RApi:
     #     th
 
     def test(self):
-        ProcessWrapper.run("self.set(28, time=100)")
+        p = ProcessWrapper()
+        p.run(self.set(28, time=100))
 
-    def print(self, msg):
+    @staticmethod
+    def print(msg):
         """
             Print ROS message
             :param msg: Message to print
@@ -96,7 +104,7 @@ class RApi:
         """
         global out_ports
 
-        #if (sensor is not None) and (self.get(sensor) != value):
+        # if (sensor is not None) and (self.get(sensor) != value):
         if sensor is not None:
             out_ports[port] = value
             self.send(out_ports)
@@ -122,7 +130,8 @@ class RApi:
             out_ports[port] = value
             self.send(out_ports)
 
-    def sleep(self, time):
+    @staticmethod
+    def sleep(time):
         """
             Sleep timer
             :param time: Seconds to sleep
@@ -130,7 +139,8 @@ class RApi:
         """
         rospy.sleep(time)
 
-    def wait(self):
+    @staticmethod
+    def wait():
         """
             Wait until Ctrl-C is pressed
         """
@@ -140,6 +150,7 @@ class RApi:
     #           ROS Subscriber           #
     ######################################
 
+    # noinspection PyMethodParameters
     def __in_ports_update(msg):
         """
             Service func to read input ports
@@ -149,6 +160,7 @@ class RApi:
         global in_ports
 
         del in_ports[0: len(in_ports)]
+        # noinspection PyUnresolvedReferences
         in_ports.append(msg.data)
 
     sub = rospy.Subscriber("modbus_wrapper/input",

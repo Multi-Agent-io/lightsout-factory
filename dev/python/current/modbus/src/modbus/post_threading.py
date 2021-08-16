@@ -25,6 +25,7 @@ class PostThread(Thread):
         self.result = None
         self.daemon = True
 
+    # noinspection PyAttributeOutsideInit
     def execute(self, *args, **kwargs):
         """ Store the method call arguments and start the thread, returns the thread object to the caller """
         self.args = args
@@ -37,6 +38,7 @@ class PostThread(Thread):
         self.result = self.func(*self.args, **self.kwargs)
         self.isRunning = False
 
+    # noinspection PyUnresolvedReferences
     def kill(self):
         if self.is_alive():
             self._Thread__stop()

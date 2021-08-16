@@ -1,3 +1,4 @@
+# noinspection PyUnresolvedReferences
 from psycopg2 import sql
 
 
@@ -6,6 +7,7 @@ from psycopg2 import sql
 def pickup_block(self, coord, way):
     """
         Pick up and deliver the block to the conveyor
+        :param self: RApi object
         :param coord: block' coordinates in the warehouse
         :type coord: list in range(0,1)
         :param way: way of moving the block
@@ -51,6 +53,7 @@ def pickup_block(self, coord, way):
 def put_block(self, color):
     """
         Deliver and put the block to the warehouse
+        :param self: RApi object
         :param color: cell' coordinates in the warehouse
         :type color: int in range(1,5)
     """
@@ -89,7 +92,8 @@ def put_block(self, color):
     self.set(16, 97)
 
     # block actual cell
-    self.query.execute(sql.SQL(f'UPDATE warehouse_arrival AS arr SET line_{line} = 1 WHERE arr.column = {column}'))
+    sql_query = 'UPDATE warehouse_arrival AS arr SET line_' + str(line) + ' = 1 WHERE arr.column = ' + str(column)
+    self.query.execute(sql_query)
 
     # return to starting position
     if line != 1:
@@ -113,7 +117,7 @@ def define_color(self):
     self.sleep(1)
 
     # color recognition block
-    color = [self.get(0)]
+    color = self.get(0)
 
     self.post.set(93, 73)
 
@@ -319,6 +323,7 @@ def run_lights(self):
 def run_a(self, pickup_coord):
     """
         Pick up, deliver and put the block along the way A (handler 1)
+        :param self: RApi object
         :param pickup_coord: block' coordinates in the warehouse
         :type pickup_coord: list in range(0,2)
     """
@@ -360,6 +365,7 @@ def run_a(self, pickup_coord):
     self.post.set(35, 48)
     self.set(52, 48)
 
+    # noinspection DuplicatedCode
     self.post.set(52, 51)
     self.set(54, 51)
 
@@ -390,6 +396,7 @@ def run_a(self, pickup_coord):
 def run_b(self, pickup_coord):
     """
         Pick up, deliver and put the block along the way B (handler 2)
+        :param self: RApi object
         :param pickup_coord: block' coordinates in the warehouse
         :type pickup_coord: list in range(0,2)
     """
@@ -420,6 +427,7 @@ def run_b(self, pickup_coord):
     # ---------------------------------
 
     # general line movement
+    # noinspection DuplicatedCode
     self.post.set(52, 51)
     self.set(54, 51)
 
@@ -450,6 +458,7 @@ def run_b(self, pickup_coord):
 def run_c(self, pickup_coord):
     """
         Pick up, deliver and put the block along the way C (handler 3)
+        :param self: RApi object
         :param pickup_coord: block' coordinates in the warehouse
         :type pickup_coord: list in range(0,2)
     """
@@ -480,6 +489,7 @@ def run_c(self, pickup_coord):
     # ---------------------------------
 
     # general line movement
+    # noinspection DuplicatedCode
     self.post.set(71, 61)
     self.set(73, 61)
 
@@ -501,6 +511,7 @@ def run_c(self, pickup_coord):
 def run_d(self, pickup_coord):
     """
         Pick up, deliver and put the block along the way D (handler 4)
+        :param self: RApi object
         :param pickup_coord: block' coordinates in the warehouse
         :type pickup_coord: list in range(0,2)
     """
