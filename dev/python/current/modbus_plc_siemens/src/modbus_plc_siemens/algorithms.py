@@ -1,8 +1,11 @@
+from psycopg2 import sql
+
+
 # --------------------------------------------------------------------------------
 
 def pickup_block(self, coord, way):
     """
-        Pick up and deliver the block to the conveyour
+        Pick up and deliver the block to the conveyor
         :param coord: block' coordinates in the warehouse
         :type coord: list in range(0,1)
         :param way: way of moving the block
@@ -45,15 +48,29 @@ def pickup_block(self, coord, way):
 
 # --------------------------------------------------------------------------------
 
-def put_block(self, coord):
+def put_block(self, color):
     """
         Deliver and put the block to the warehouse
-        :param coord: cell' coordinates in the warehouse
-        :type coord: list in range(0,1)
+        :param color: cell' coordinates in the warehouse
+        :type color: int in range(1,5)
     """
 
-    column = coord[0]
-    line = coord[1]
+    column = None
+    line = None
+
+    # check necessary cells
+    self.query.execute('SELECT * FROM warehouse_arrival AS arr ORDER BY arr.column')
+    for row in self.query:
+        if row[0] not in (color, 4+color, 8+color):
+            continue
+        for cell in range(4):
+            if not row[cell+1]:
+                column = row[0]
+                line = cell+1
+                break
+        else:
+            continue
+        break
 
     # pickup the block / move to necessary line
     # (line+43)*2+1) - line' register
@@ -70,6 +87,10 @@ def put_block(self, coord):
     self.set(15, 98)
     self.set(14, (line+43)*2)
     self.set(16, 97)
+
+    # block actual cell
+    self.query.execute(sql.SQL(f'UPDATE warehouse_arrival AS arr SET line_{line} = 1 WHERE arr.column = {column}'))
+
     # return to starting position
     if line != 1:
         self.set(14, 88)
@@ -79,17 +100,7 @@ def put_block(self, coord):
 
 # --------------------------------------------------------------------------------
 
-colors = (
-    'black color',
-    'yellow block',
-    'blue block',
-    'green block',
-    'purple block',
-    'unknown color'
-)
-
-
-def straight_move(self):
+def define_color(self):
     """
         Move the block along the last conveyor' line
         Define color of the block
@@ -102,21 +113,23 @@ def straight_move(self):
     self.sleep(1)
 
     # color recognition block
-    print('- Color recognition block: ' + colors[self.get(0)])
+    color = [self.get(0)]
 
     self.post.set(93, 73)
 
     # timer for right pick-up position
     self.set(95, 73, time=0.25)
 
+    return color
+
 
 # --------------------------------------------------------------------------------
 
-def act0(self, loader, direction, point):
+def act0(self, direction, point):
     """
         Helping method 0 - loader' moving between the conveyors
     """
-    
+
     if direction not in range(2):
         print('- Error: incorrect direction')
         return
@@ -124,32 +137,21 @@ def act0(self, loader, direction, point):
         print('- Error: incorrect point')
         return
     # ------------------------------------
-    if loader == 0:
-        if point == 'a':
-            self.set(3-direction, 99)
-        elif point == 'b':
-            self.set(3-direction, 100)
-        elif point == 'c':
-            self.set(3-direction, 101)
-        elif point == 'd':
-            self.set(3-direction, 102)
-    elif loader == 1:
-        if point == 'a':
-            self.set(direction+10, 99)
-        elif point == 'b':
-            self.set(direction+10, 100)
-        elif point == 'c':
-            self.set(direction+10, 101)
-        elif point == 'd':
-            self.set(direction+10, 102)
-    else:
-        print('- Error: incorrect loader number')
+    if point == 'a':
+        self.set(3-direction, 99)
+    elif point == 'b':
+        self.set(3-direction, 100)
+    elif point == 'c':
+        self.set(3-direction, 101)
+    elif point == 'd':
+        self.set(3-direction, 102)
+
 
 def act1(self, loader, direction, point):
     """
         Helping method 1 - loader' moving along the warehouse
     """
-    
+
     if direction not in range(2):
         print('- Error: incorrect direction')
         return
@@ -164,11 +166,12 @@ def act1(self, loader, direction, point):
     else:
         print('- Error: incorrect loader number')
 
+
 def act2(self, loader, direction, point):
     """
         Helping method 2 - loader' moving up and down
     """
-    
+
     if direction not in range(2):
         print('- Error: incorrect direction')
         return
@@ -183,11 +186,12 @@ def act2(self, loader, direction, point):
     else:
         print('- Error: incorrect loader number')
 
+
 def act3(self, loader, action):
     """
-        Helping method 3 - cariage' moving
+        Helping method 3 - carriage' moving
     """
-    
+
     if action not in range(1, 5):
         print('- Error: incorrect action')
         return
@@ -216,19 +220,19 @@ def act3(self, loader, action):
 
 # --------------------------------------------------------------------------------
 
-def handlers_lights(self):
+def run_lights(self):
     """
         Control the handlers' lights independently
         - Downtime = Green color
         - Moving = Yellow color
         - Work = Red color
     """
-    
+
     trig = [[True]*3]*4
     while True:
 
         # lights of the handler 1
-        if self.get(33):
+        if not self.get(35):
             # handler' moving (yellow)
             if self.get(36):
                 if trig[0][0]:
@@ -248,7 +252,7 @@ def handlers_lights(self):
             trig[0] = [True, True, False]
         # ------------------------------------
         # lights of the handler 2
-        if self.get(43):
+        if not self.get(45):
             # handler' moving (yellow)
             if self.get(46):
                 if trig[1][0]:
@@ -268,7 +272,7 @@ def handlers_lights(self):
             trig[1] = [True, True, False]
         # ------------------------------------
         # lights of the handler 3
-        if self.get(53):
+        if not self.get(55):
             # handler' moving (yellow)
             if self.get(56):
                 if trig[2][0]:
@@ -288,7 +292,7 @@ def handlers_lights(self):
             trig[2] = [True, True, False]
         # ------------------------------------
         # lights of the handler 4
-        if self.get(63):
+        if not self.get(65):
             # handler' moving (yellow)
             if self.get(66):
                 if trig[3][0]:
@@ -312,20 +316,15 @@ def handlers_lights(self):
 
 # --------------------------------------------------------------------------------
 
-def run_a(self, pickup_coord, put_coord):
+def run_a(self, pickup_coord):
     """
         Pick up, deliver and put the block along the way A (handler 1)
         :param pickup_coord: block' coordinates in the warehouse
         :type pickup_coord: list in range(0,2)
-        :param put_coord: cell' coordinates in the warehouse
-        :type put_coord: list in range(0,2)
     """
 
     if (pickup_coord[0] not in range(1, 13)) or (pickup_coord[1] not in range(1, 5)):
         print('- Error: incorrect pickup-coordinates')
-        return
-    if (put_coord[0] not in range(1, 13)) or (put_coord[1] not in range(1, 5)):
-        print('- Error: incorrect put-coordinates')
         return
 
     pickup_block(self, pickup_coord, 1)
@@ -335,9 +334,9 @@ def run_a(self, pickup_coord, put_coord):
 
     # handler work
     self.set(22, 34)
-    self.set(25, 36)
+    self.set(24, 36)
     self.set(26, time=3)
-    self.set(24, 37)
+    self.set(25, 37)
     self.set(23, 35)
 
     if self.get(39) == 0:
@@ -382,26 +381,21 @@ def run_a(self, pickup_coord, put_coord):
     # ---------------------------------
     self.set(88, 69)
 
-    straight_move(self)
-    put_block(self, put_coord)
+    color = define_color(self)
+    put_block(self, color)
 
 
 # --------------------------------------------------------------------------------
 
-def run_b(self, pickup_coord, put_coord):
+def run_b(self, pickup_coord):
     """
         Pick up, deliver and put the block along the way B (handler 2)
         :param pickup_coord: block' coordinates in the warehouse
         :type pickup_coord: list in range(0,2)
-        :param put_coord: cell' coordinates in the warehouse
-        :type put_coord: list in range(0,2)
     """
 
     if (pickup_coord[0] not in range(1, 13)) or (pickup_coord[1] not in range(1, 5)):
         print('- Error: incorrect pickup-coordinates')
-        return
-    if (put_coord[0] not in range(1, 13)) or (put_coord[1] not in range(1, 5)):
-        print('- Error: incorrect put-coordinates')
         return
 
     pickup_block(self, pickup_coord, 2)
@@ -447,26 +441,21 @@ def run_b(self, pickup_coord, put_coord):
     # ---------------------------------
     self.set(88, 69)
 
-    straight_move(self)
-    put_block(self, put_coord)
+    color = define_color(self)
+    put_block(self, color)
 
 
 # --------------------------------------------------------------------------------
 
-def run_c(self, pickup_coord, put_coord):
+def run_c(self, pickup_coord):
     """
         Pick up, deliver and put the block along the way C (handler 3)
         :param pickup_coord: block' coordinates in the warehouse
         :type pickup_coord: list in range(0,2)
-        :param put_coord: cell' coordinates in the warehouse
-        :type put_coord: list in range(0,2)
     """
 
     if (pickup_coord[0] not in range(1, 13)) or (pickup_coord[1] not in range(1, 5)):
         print('- Error: incorrect pickup-coordinates')
-        return
-    if (put_coord[0] not in range(1, 13)) or (put_coord[1] not in range(1, 5)):
-        print('- Error: incorrect put-coordinates')
         return
 
     pickup_block(self, pickup_coord, 3)
@@ -503,33 +492,28 @@ def run_c(self, pickup_coord, put_coord):
     # ---------------------------------
     self.set(88, 69)
 
-    straight_move(self)
-    put_block(self, put_coord)
+    color = define_color(self)
+    put_block(self, color)
 
 
 # --------------------------------------------------------------------------------
 
-def run_d(self, pickup_coord, put_coord):
+def run_d(self, pickup_coord):
     """
         Pick up, deliver and put the block along the way D (handler 4)
         :param pickup_coord: block' coordinates in the warehouse
         :type pickup_coord: list in range(0,2)
-        :param put_coord: cell' coordinates in the warehouse
-        :type put_coord: list in range(0,2)
     """
-    
+
     if (pickup_coord[0] not in range(1, 13)) or (pickup_coord[1] not in range(1, 5)):
         print('- Error: incorrect pickup-coordinates')
-        return
-    if (put_coord[0] not in range(1, 13)) or (put_coord[1] not in range(1, 5)):
-        print('- Error: incorrect put-coordinates')
         return
 
     pickup_block(self, pickup_coord, 4)
     # ---------------------------------
     self.post.set(76, 63)
     self.set(78, 63)
-    
+
     # handler work
     self.set(79, 64)
     self.set(81, 66)
@@ -544,5 +528,27 @@ def run_d(self, pickup_coord, put_coord):
     self.post.set(78, 68)
     self.set(90, 68)
 
-    straight_move(self)
-    put_block(self, put_coord)
+    color = define_color(self)
+    put_block(self, color)
+
+
+# --------------------------------------------------------------------------------
+
+def show_warehouse(self):
+    """
+        Show all warehouse' cells in the table
+    """
+    
+    self.query.execute('SELECT * FROM warehouse_arrival AS arr ORDER BY arr.column')
+
+    print('-'*49)
+    print('|'+' '*11+'| line_1 | line_2 | line_3 | line_4 |')
+    print('-'*49)
+
+    for row in self.query:
+
+        print(f'| column_{row[0]:<2} |{row[1]:^8}|{row[2]:^8}|{row[3]:^8}|{row[4]:^8}|')
+        print('-'*49)
+
+
+# --------------------------------------------------------------------------------

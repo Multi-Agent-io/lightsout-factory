@@ -2,24 +2,24 @@ import rospy
 
 from std_msgs.msg import Int32MultiArray as HoldingRegister
 from modbus.post_threading import Post
+from modbus.process import ProcessWrapper
 
-
-######################
-# ROS and FT methods #
-######################
+######################################
+#         ROS and FT methods         #
+######################################
 
 
 in_ports = []
-out_ports = [0 for i in range(106)]
+out_ports = [0] * 106
 
 action_threads = []
 
 
 class RApi:
-    from modbus_plc_siemens.algorithms import handlers_lights, run_a, run_b, run_c, run_d
+    from modbus_plc_siemens.algorithms import show_warehouse, run_lights, run_a, run_b, run_c, run_d
     from modbus_plc_siemens.algorithms import act0, act1, act2, act3
     th = None
-
+    
     def __init__(self):
         self.post = Post(self)
 
@@ -46,6 +46,9 @@ class RApi:
 
     # def r_kill(th):
     #     th
+
+    def test(self):
+        ProcessWrapper.run("self.set(28, time=100)")
 
     def print(self, msg):
         """
@@ -133,9 +136,9 @@ class RApi:
         """
         rospy.spin()
 
-    ##################
-    # ROS Subscriber #
-    ##################
+    ######################################
+    #           ROS Subscriber           #
+    ######################################
 
     def __in_ports_update(msg):
         """
@@ -153,9 +156,9 @@ class RApi:
                            __in_ports_update,
                            queue_size=500)
 
-    #################
-    # ROS Publisher #
-    #################
+    ######################################
+    #           ROS Publisher            #
+    ######################################
 
     pub = rospy.Publisher("modbus_wrapper/output",
                           HoldingRegister,

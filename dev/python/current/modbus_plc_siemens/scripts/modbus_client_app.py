@@ -2,18 +2,18 @@
 import sys
 from contextlib import suppress
 
+import psycopg2
 from modbus_plc_siemens.r_api import *
-# from modbus_plc_siemens.algorithms import *
 from modbus_plc_siemens.client_init import ModbusClient
 
 
-#########################################
+##################################################################################
 
 if __name__ == "__main__":
 
-    #####################
-    #       Init        #
-    #####################
+    ######################################
+    #           Initialisation           #
+    ######################################
 
     rospy.init_node("modbus_client_app")
 
@@ -21,12 +21,17 @@ if __name__ == "__main__":
     modbus_port = 502
 
     modclient = None
-
+    conn = None
     R = RApi()
 
     try:
         modclient = ModbusClient(modbus_host, modbus_port)
         R.print("Modbus client session successfully started")
+        conn = psycopg2.connect(user='postgres',
+                                password='panda',
+                                host='localhost',
+                                database='postgres')
+        R.query = conn.cursor()
     except Exception as e:
         R.error("Modbus client session failed to start")
         R.error("[REASON] " + str(e))
@@ -43,9 +48,9 @@ if __name__ == "__main__":
     # r_print(out_ports)
 
 
-    #####################
-    #   Application     #
-    #####################
+    ######################################
+    #            Application             #
+    ######################################
 
     R.print("Available commands: 1, 2, 3, 4, stop")
 
@@ -69,13 +74,11 @@ if __name__ == "__main__":
                 sys.tracebacklimit = 0
 
                 with suppress(Exception):
+                    R.query.close()
+                    conn.close()
+                    
                     R.print("Shutting down modbus client session...")
-
-                    try:
-                        rospy.signal_shutdown("Server shutting down")
-                    except:
-                        pass
-
+                    rospy.signal_shutdown("Server shutting down")
                     exit(0)
 
             else:
