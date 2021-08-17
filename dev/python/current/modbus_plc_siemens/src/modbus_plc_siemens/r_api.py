@@ -1,8 +1,10 @@
+import psycopg2 as pg
 import rospy
 
 from std_msgs.msg import Int32MultiArray as HoldingRegister
-from modbus.post_threading import Post
 from modbus.process import ProcessWrapper
+from modbus.post_threading import Post
+from contextlib import closing
 
 ######################################
 #         ROS and FT methods         #
@@ -30,6 +32,18 @@ class RApi:
 
     def s(self):
         self.post.set(28, 1, time=100)
+        
+    @staticmethod
+    def execute(query, result=False):
+        with closing(pg.connect(user='postgres', password='panda', host='localhost', database='postgres')) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                conn.commit()
+                if result:
+                    table = []
+                    for line in cursor:
+                        table.append(line)
+                    return table
 
     @staticmethod
     def error(msg):

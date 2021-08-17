@@ -1,7 +1,3 @@
-# noinspection PyUnresolvedReferences
-from psycopg2 import sql
-
-
 # --------------------------------------------------------------------------------
 
 def pickup_block(self, coord, way):
@@ -62,8 +58,8 @@ def put_block(self, color):
     line = None
 
     # check necessary cells
-    self.query.execute('SELECT * FROM warehouse_arrival AS arr ORDER BY arr.column')
-    for row in self.query:
+    table = self.execute('SELECT * FROM warehouse_arrival AS arr ORDER BY arr.column', True)
+    for row in table:
         if row[0] not in (color, 4+color, 8+color):
             continue
         for cell in range(4):
@@ -92,8 +88,7 @@ def put_block(self, color):
     self.set(16, 97)
 
     # block actual cell
-    sql_query = 'UPDATE warehouse_arrival AS arr SET line_' + str(line) + ' = 1 WHERE arr.column = ' + str(column)
-    self.query.execute(sql_query)
+    self.execute(f'UPDATE warehouse_arrival AS arr SET line_{ line } = 1 WHERE arr.column = { column }')
 
     # return to starting position
     if line != 1:
@@ -550,13 +545,13 @@ def show_warehouse(self):
         Show all warehouse' cells in the table
     """
     
-    self.query.execute('SELECT * FROM warehouse_arrival AS arr ORDER BY arr.column')
+    table = self.execute('SELECT * FROM warehouse_arrival AS arr ORDER BY arr.column', True)
 
     print('-'*49)
     print('|'+' '*11+'| line_1 | line_2 | line_3 | line_4 |')
     print('-'*49)
 
-    for row in self.query:
+    for row in table:
 
         print(f'| column_{row[0]:<2} |{row[1]:^8}|{row[2]:^8}|{row[3]:^8}|{row[4]:^8}|')
         print('-'*49)
