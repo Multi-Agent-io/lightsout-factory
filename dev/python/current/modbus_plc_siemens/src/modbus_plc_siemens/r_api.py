@@ -6,9 +6,9 @@ from modbus.process import ProcessWrapper
 from modbus.post_threading import Post
 from contextlib import closing
 
-######################################
-#         ROS and FT methods         #
-######################################
+##########################################
+#           ROS and FT methods           #
+##########################################
 
 
 in_ports = []
@@ -18,51 +18,21 @@ action_threads = []
 
 
 class RApi:
-
     # noinspection PyUnresolvedReferences
-    from modbus_plc_siemens.algorithms import show_warehouse, run_lights, run_a, run_b, run_c, run_d
-    # noinspection PyUnresolvedReferences
-    from modbus_plc_siemens.algorithms import act0, act1, act2, act3
+    from modbus_plc_siemens.algorithms import act0, act1, act2, act3, \
+                                              show_warehouse, clear_warehouse, add_tasks, run_factory, stop_factory, \
+                                              run_loader_0, run_loader_1, run_lights, \
+                                              run_line_a, run_line_b, run_line_c, run_line_d
 
     th = None
-
 
     def __init__(self):
         self.post = Post(self)
 
+    ######################################
+
     def s(self):
         self.post.set(28, 1, time=100)
-        
-    @staticmethod
-    def execute(query, result=False):
-        with closing(pg.connect(user='postgres', password='panda', host='localhost', database='postgres')) as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(query)
-                conn.commit()
-                if result:
-                    table = []
-                    for line in cursor:
-                        table.append(line)
-                    return table
-
-    @staticmethod
-    def error(msg):
-        """
-            Print ROS error message
-            :param msg: Message to print
-            :type msg: String
-        """
-        rospy.logerr(msg)
-
-    @staticmethod
-    def get(port):
-        """
-            Get input port value
-            :param port: Input port number
-            :type port: int in range (0, 112)
-        """
-        # r_print(in_ports)
-        return in_ports[0][port]
 
     # def r_kill(th):
     #     th
@@ -71,27 +41,70 @@ class RApi:
         p = ProcessWrapper()
         p.run(self.set(28, time=100))
 
-    @staticmethod
-    def print(msg):
-        """
-            Print ROS message
-            :param msg: Message to print
-            :type msg: String
-        """
-        rospy.loginfo(msg)
-
     # def r_post(command):
     #     """
     #         Run command in a new thread
-    #         :param command: Command to run
-    #         :type command: String
+    #         :param command: command to run
+    #         :type command: str
     #     """
     #     th =
 
+    ######################################
+    #          Main FT methods           #
+    ######################################
+
+    @staticmethod
+    def print(msg):
+        """
+            Print ROS' message
+            :param msg: message to print
+            :type msg: str
+        """
+        rospy.loginfo(msg)
+
+    @staticmethod
+    def error(msg):
+        """
+            Print ROS' error-message
+            :param msg: message to print
+            :type msg: str
+        """
+        rospy.logerr(msg)
+
+    ######################################
+
+    @staticmethod
+    def sleep(time):
+        """
+            Sleep timer
+            :param time: seconds to sleep
+            :type time: float
+        """
+        rospy.sleep(time)
+
+    @staticmethod
+    def wait():
+        """
+            Wait until 'Ctrl-C' is pressed
+        """
+        rospy.spin()
+
+    ######################################
+
+    @staticmethod
+    def get(port):
+        """
+            Get input port value
+            :param port: input port number
+            :type port: int in range (0, 112)
+        """
+        # r_print(in_ports)
+        return in_ports[0][port]
+
     def send(self, value=None):
         """
-            Set output ports
-            :param value: Output ports' value list
+            Send output ports values
+            :param value: output ports values to send
             :type value: list in range (0, 112)
         """
         output = self.output
@@ -103,62 +116,56 @@ class RApi:
 
         self.pub.publish(output)
 
-    def set(self, port, sensor=None, value=1, time=None):
+    def set(self, port, sensor=None, time=None, value=1):
         """
-            Set specified output port
-            :param port: Register number
+            Set specified output port value
+            :param port: output port number
             :type port: int in range (0, 106)
-            :param sensor: Sensor port number
-                            Resets port value after sensor value changed
+            :param sensor: sensor port number
+                           resets port value after sensor value changed
             :type sensor: int in range (0, 112)
-            :param value: Value to set
-            :type value: int (0 or 1 only)
-            :param time: Timer to revert value
+            :param time: seconds to reset port value
             :type time: float
+            :param value: value to set
+            :type value: int in range (0, 2)
         """
         global out_ports
 
         # if (sensor is not None) and (self.get(sensor) != value):
-        if sensor is not None:
-            out_ports[port] = value
-            self.send(out_ports)
+        out_ports[port] = value
+        self.send(out_ports)
 
+        if value == 0:
+            return
+        elif sensor:
             value = self.get(sensor)
-
             while self.get(sensor) == value:
                 self.sleep(0.001)
-
-            out_ports[port] = 1 if out_ports[port] == 0 else 0
-            self.send(out_ports)
-
-        if time is not None:
-            out_ports[port] = value
-            self.send(out_ports)
-
+        elif time:
             self.sleep(time)
+        else:
+            return
 
-            out_ports[port] = 1 if out_ports[port] == 0 else 0
-            self.send(out_ports)
+        out_ports[port] = 0
+        self.send(out_ports)
 
-        if sensor is None and time is None:
-            out_ports[port] = value
-            self.send(out_ports)
-
-    @staticmethod
-    def sleep(time):
-        """
-            Sleep timer
-            :param time: Seconds to sleep
-            :type time: float
-        """
-        rospy.sleep(time)
+    ######################################
 
     @staticmethod
-    def wait():
+    def execute(query, result=False):
         """
-            Wait until Ctrl-C is pressed
+            Execute SQL-query
+            :param query: query to execute
+            :type query: str
+            :param result: label to return executing result
+            :type result: bool
         """
-        rospy.spin()
+        with closing(pg.connect(user='postgres', password='panda', host='localhost', database='postgres')) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                conn.commit()
+                if result:
+                    return cursor.fetchall()
 
     ######################################
     #           ROS Subscriber           #
@@ -167,9 +174,9 @@ class RApi:
     # noinspection PyMethodParameters
     def __in_ports_update(msg):
         """
-            Service func to read input ports
-            and write them to in_ports list
-            to make them available in app
+            Service callback-function:
+            Read input ports and write them to list
+            Make input ports available in app
         """
         global in_ports
 
