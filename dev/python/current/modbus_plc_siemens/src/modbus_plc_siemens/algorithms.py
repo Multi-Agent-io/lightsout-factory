@@ -27,7 +27,7 @@ def show_warehouse(self):
         :param self: RApi object
     """
 
-    table = self.execute('SELECT * FROM warehouse_arrival AS arr ORDER BY arr.column', True)
+    table = self.execute('SELECT * FROM warehouse_arrival AS arr ORDER BY arr.column')
 
     print('\n' + '-'*49 + '\n|' + ' '*11 + '| line_1 | line_2 | line_3 | line_4 |\n' + '-'*49)
 
@@ -292,7 +292,7 @@ def run_loader_0(self):
             self.set(8, 26)
 
             start = way
-            conveyors[str(way)+'.1'] = True
+            conveyors[f'{way}.1'] = True
             # run the line in parallel
             exec('self.post.run_line_'+loader_0_tasks[0][1]+'()')
 
@@ -317,7 +317,7 @@ def run_loader_1(self):
             line = None
 
             # check necessary cells
-            table = self.execute('SELECT * FROM warehouse_arrival AS arr ORDER BY arr.column', True)
+            table = self.execute('SELECT * FROM warehouse_arrival AS arr ORDER BY arr.column')
             for row in table:
                 if row[0] not in (color, 4+color, 8+color):
                     continue
@@ -635,7 +635,7 @@ def run_line_b(self):
     self.set(52, 48)
     # rotate 2.3 to 1
     self.set(50, 50)
-    conveyors['1.4'] = False
+    conveyors['2.2'] = False
 
     # move from 2.3 to 2.4
     self.post.set(52, 51)
@@ -718,7 +718,7 @@ def run_line_c(self):
     self.set(71, 58)
     # rotate 3.3 to 1
     self.set(68, 60)
-    conveyors['2.4'] = False
+    conveyors['3.2'] = False
 
     # move from 3.3 to 3.4
     self.post.set(71, 61)

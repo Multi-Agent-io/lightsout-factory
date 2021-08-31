@@ -152,20 +152,17 @@ class RApi:
     ######################################
 
     @staticmethod
-    def execute(query, result=False):
+    def execute(query):
         """
             Execute SQL-query
             :param query: query to execute
             :type query: str
-            :param result: label to return executing result
-            :type result: bool
         """
         with closing(pg.connect(user='postgres', password='panda', host='localhost', database='postgres')) as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query)
                 conn.commit()
-                if result:
-                    return cursor.fetchall()
+                return cursor.fetchall()
 
     ######################################
     #           ROS Subscriber           #

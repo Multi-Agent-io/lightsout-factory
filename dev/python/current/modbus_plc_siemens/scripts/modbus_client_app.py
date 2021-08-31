@@ -44,7 +44,7 @@ if __name__ == "__main__":
     #            Application             #
     ######################################
 
-    R.print("Available commands: show, clear, act*(...), add(...), run, stop, exit")
+    R.print("Available commands: show, clear, act*(.), add(.), run, stop, exit")
 
     command = None
 
@@ -60,8 +60,8 @@ if __name__ == "__main__":
                 R.run_factory()
             elif command == "stop":
                 R.stop_factory()
-            # elif command.startswith(("act", "add", "set")):
-                # exec('R.' + command)
+            elif command.startswith(("act", "add", "set")):
+                exec('R.' + command)
             elif command == "exit":
                 # sys.tracebacklimit = 0
                 
