@@ -152,7 +152,7 @@ class RApi:
     ######################################
 
     @staticmethod
-    def execute(query):
+    def execute(query, result=False):
         """
             Execute SQL-query
             :param query: query to execute
@@ -162,7 +162,8 @@ class RApi:
             with conn.cursor() as cursor:
                 cursor.execute(query)
                 conn.commit()
-                return cursor.fetchall()
+                if result:
+                    return cursor.fetchall()
 
     ######################################
     #           ROS Subscriber           #

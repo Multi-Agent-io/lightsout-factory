@@ -27,7 +27,7 @@ def show_warehouse(self):
         :param self: RApi object
     """
 
-    table = self.execute('SELECT * FROM warehouse_arrival AS arr ORDER BY arr.column')
+    table = self.execute('SELECT * FROM warehouse_arrival AS arr ORDER BY arr.column', True)
 
     print('\n' + '-'*49 + '\n|' + ' '*11 + '| line_1 | line_2 | line_3 | line_4 |\n' + '-'*49)
 
@@ -317,7 +317,7 @@ def run_loader_1(self):
             line = None
 
             # check necessary cells
-            table = self.execute('SELECT * FROM warehouse_arrival AS arr ORDER BY arr.column')
+            table = self.execute('SELECT * FROM warehouse_arrival AS arr ORDER BY arr.column', True)
             for row in table:
                 if row[0] not in (color, 4+color, 8+color):
                     continue
