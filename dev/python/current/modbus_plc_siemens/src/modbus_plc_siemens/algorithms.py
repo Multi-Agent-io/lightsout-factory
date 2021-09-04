@@ -68,9 +68,10 @@ def add_tasks(self, *tasks):
             return
 
     loader_0_tasks.extend(tasks)
-    print('- New tasks is added to the queue')
-    # algorithm for making optimized queue...
-    # conditions: distance, delay, busyness, etc
+    print('- New tasks are added to the queue!')
+    
+    # algorithm for making balanced queue...
+    # condition: using the wallet balance control program
 
 
 ##################################################################################
@@ -88,10 +89,10 @@ def act0(self, direction, point):
         print('- Warning: factory is running!')
         return
     if direction not in range(2):
-        print('- Error: incorrect direction')
+        print('- Error: incorrect direction!')
         return
     if point not in ['a', 'b', 'c', 'd']:
-        print('- Error: incorrect point')
+        print('- Error: incorrect point!')
         return
     # ------------------------------------
     if point == 'a':
@@ -113,10 +114,10 @@ def act1(self, loader, direction, point):
         print('- Warning: factory is running!')
         return
     if direction not in range(2):
-        print('- Error: incorrect direction')
+        print('- Error: incorrect direction!')
         return
     if point not in range(1, 13):
-        print('- Error: incorrect point')
+        print('- Error: incorrect point!')
         return
     # ------------------------------------
     if loader == 0:
@@ -124,7 +125,7 @@ def act1(self, loader, direction, point):
     elif loader == 1:
         self.set(direction+10, 75+(12-point))
     else:
-        print('- Error: incorrect loader number')
+        print('- Error: incorrect loader number!')
 
 
 def act2(self, loader, direction, point):
@@ -136,10 +137,10 @@ def act2(self, loader, direction, point):
         print('- Warning: factory is running!')
         return
     if direction not in range(2):
-        print('- Error: incorrect direction')
+        print('- Error: incorrect direction!')
         return
     if point not in range(1, 9):
-        print('- Error: incorrect point')
+        print('- Error: incorrect point!')
         return
     # ------------------------------------
     if loader == 0:
@@ -147,7 +148,7 @@ def act2(self, loader, direction, point):
     elif loader == 1:
         self.set(direction+13, point+87)
     else:
-        print('- Error: incorrect loader number')
+        print('- Error: incorrect loader number!')
 
 
 def act3(self, loader, action):
@@ -159,7 +160,7 @@ def act3(self, loader, action):
         print('- Warning: factory is running!')
         return
     if action not in range(1, 5):
-        print('- Error: incorrect action')
+        print('- Error: incorrect action!')
         return
     # ------------------------------------
     if loader == 0:
@@ -181,7 +182,7 @@ def act3(self, loader, action):
         elif action == 4:
             self.set(15, 98)
     else:
-        print('- Error: incorrect loader number')
+        print('- Error: incorrect loader number!')
 
 
 ##################################################################################
@@ -461,6 +462,11 @@ def run_lights(self):
             trig[3] = [True, True, False]
 
         self.sleep(0.001)
+    
+    self.set(28, value=0)
+    self.set(47, value=0)
+    self.set(66, value=0)
+    self.set(85, value=0)
 
 
 ##################################################################################
@@ -492,7 +498,7 @@ def define_color(self):
 
     # move from 4.4 to 4.5
     self.post.set(93, 73)
-    self.set(95, 73, time=0.25)
+    self.set(95, 73, time=0.5)
     conveyors['4.4'] = False
 
 
@@ -705,7 +711,7 @@ def run_line_c(self):
 
     queues['3.3'].append(0)
 
-    while (conveyors['3.4']) or (queues['3.3'][0] != 1):
+    while (conveyors['3.4']) or (queues['3.3'][0] != 0):
         self.sleep(0.001)
     conveyors['3.4'] = True
     queues['3.3'].pop(0)
@@ -771,7 +777,7 @@ def run_line_d(self):
 
     queues['4.3'].append(0)
 
-    while (conveyors['4.4']) or (queues['4.3'][0] != 1):
+    while (conveyors['4.4']) or (queues['4.3'][0] != 0):
         self.sleep(0.001)
     conveyors['4.4'] = True
     queues['4.3'].pop(0)

@@ -44,7 +44,7 @@ if __name__ == "__main__":
     #            Application             #
     ######################################
 
-    R.print("Available commands: show, clear, act*(.), add(.), run, stop, exit")
+    R.print("Available commands: show, clear, act*(.), add*(.), run, stop, exit")
 
     command = None
 
@@ -63,19 +63,16 @@ if __name__ == "__main__":
             elif command.startswith(("act", "add", "set")):
                 exec('R.' + command)
             elif command == "exit":
-                # sys.tracebacklimit = 0
                 
                 # application closing
+                sys.tracebacklimit = 0
                 with suppress(Exception):
                     R.print("Shutting down modbus client session...")
                     rospy.signal_shutdown("Server shutting down")
                     # modclient.stopListening()
 
             else:
-                exec(command)
-                # if command.startswith(('R.', 'exec')):
-                    # print('- Warning: this is unecceptable command!')
-                    # continue
+                print('- This command is not available!')
                 # exec(command)
 
         except Exception as e:
