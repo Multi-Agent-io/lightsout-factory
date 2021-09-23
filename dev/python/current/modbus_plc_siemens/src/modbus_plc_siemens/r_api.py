@@ -1,7 +1,8 @@
 import psycopg2 as pg
 import rospy
 
-from std_msgs.msg import Int32MultiArray as HoldingRegister
+from std_msgs.msg import Int32MultiArray
+from std_msgs.msg import String
 from modbus.process import ProcessWrapper
 from modbus.post_threading import Post
 from contextlib import closing
@@ -13,6 +14,8 @@ from contextlib import closing
 
 in_ports = []
 out_ports = [0] * 106
+
+share = []
 
 action_threads = []
 
@@ -141,11 +144,12 @@ class RApi:
             value = self.get(sensor)
             while self.get(sensor) == value:
                 self.sleep(0.001)
-        elif time:
-            self.sleep(time)
-        else:
+        elif not time:
             return
-
+            
+        if time:
+            self.sleep(time)
+        
         out_ports[port] = 0
         self.send(out_ports)
 
@@ -183,16 +187,32 @@ class RApi:
         in_ports.append(msg.data)
 
     sub = rospy.Subscriber("modbus_wrapper/input",
-                           HoldingRegister,
+                           Int32MultiArray,
                            __in_ports_update,
                            queue_size=500)
+
+    # noinspection PyMethodParameters
+    def __spectator_update(msg):
+        global share
+
+        del share[0: len(share)]
+        # noinspection PyUnresolvedReferences
+        data = msg.data.replace("[", "").replace("]", "").split(',')
+
+        for i in range(len(data)):
+            share.append(data[i])
+
+    spectator = rospy.Subscriber("spectator",
+                                 String,
+                                 __spectator_update,
+                                 queue_size=500)
 
     ######################################
     #           ROS Publisher            #
     ######################################
 
     pub = rospy.Publisher("modbus_wrapper/output",
-                          HoldingRegister,
+                          Int32MultiArray,
                           queue_size=500)
 
-    output = HoldingRegister()
+    output = Int32MultiArray()

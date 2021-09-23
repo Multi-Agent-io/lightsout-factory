@@ -33,7 +33,7 @@ if __name__ == "__main__":
     R.sleep(1)
 
     # in_ports = modclient.readRegisters(0, 112), (1, 112)
-    R.print("Press any button on FT to proceed")
+    R.print("(Press any button on FT to proceed)")
 
     while not in_ports:
         R.sleep(0.2)
@@ -44,7 +44,7 @@ if __name__ == "__main__":
     #            Application             #
     ######################################
 
-    R.print("Available commands: show, clear, act*(.), add*(.), run, stop, exit")
+    R.print("Available commands: show, clear, add*(.), run, stop, exit (act*(.), set(), color)")
 
     command = None
 
@@ -60,7 +60,9 @@ if __name__ == "__main__":
                 R.run_factory()
             elif command == "stop":
                 R.stop_factory()
-            elif command.startswith(("act", "add", "set")):
+            elif command == "color":
+                print(f'- Color: {R.get(0)}')
+            elif command.startswith(("add", "act", "set")):
                 exec('R.' + command)
             elif command == "exit":
                 

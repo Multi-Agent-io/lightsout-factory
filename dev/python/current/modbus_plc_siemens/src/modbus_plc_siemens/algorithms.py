@@ -226,7 +226,8 @@ def stop_factory(self):
             triggers['loader 1'] = False
 
             # return loader 0 to starting position
-            self.set(2, 4)
+            if not self.get(4):
+                self.set(2, 4)
             triggers['lights'] = False
 
             triggers['R/S'] = False
@@ -252,29 +253,38 @@ def run_loader_0(self):
     start = 0
 
     while triggers['loader 0']:
-        if loader_0_tasks:
+        if loader_0_tasks and not conveyors[f'{ways[loader_0_tasks[0][1]]}.1']:
 
             column = loader_0_tasks[0][0][0]
             line = loader_0_tasks[0][0][1]
             way = ways[loader_0_tasks[0][1]]
-
+            
+            # =========================================================
+            # move up for safety
+            if line != 1:
+                self.set(5, 18)
+            
             # move to necessary column
             # (column+3) - column' register
-            # (way*3-(4-way)//2) - navigation
+            # (way*3-(4-way)//2) - navigation        
             if not start:
                 if column != 1:
-                    self.set(3, column+3)
+                    self.post.set(3, column+3)
             else:
                 if column < (start*3-(4-start)//2):
-                    self.set(2, column+3)
+                    self.post.set(2, column+3)
                 else:
-                    self.set(3, column+3)
+                    self.post.set(3, column+3)
 
-            # move to necessary cell
+            # move to necessary line
             # (line+7)*2+1) - line' register
             if line != 1:
-                self.set(5, (line+7)*2+1)
+                self.post.set(5, (line+7)*2+1)
+                
+            while not self.get(column+3) or not self.get((line+7)*2+1):
+                self.sleep(1)
 
+            # =========================================================
             # pickup the block
             # ((line+8)*2) - line' register
             self.set(8, 25)
@@ -284,10 +294,16 @@ def run_loader_0(self):
             # deliver the block
             # (way*3-(4-way)//2) - navigation
             if column < (way*3-(4-way)//2):
-                self.set(3, way+98)
+                self.post.set(3, way+98)
             else:
-                self.set(2, way+98)
-
+                self.post.set(2, way+98)
+            if line != 1:
+                self.post.set(6, 18)
+                
+            while not self.get(way+98) or not self.get(18):
+                self.sleep(0.001)
+                
+            # put the block
             self.set(7, 27)
             self.set(6, 17)
             self.set(8, 26)
@@ -316,7 +332,7 @@ def run_loader_1(self):
             color = loader_1_tasks[0]
             column = None
             line = None
-
+            
             # check necessary cells
             table = self.execute('SELECT * FROM warehouse_arrival AS arr ORDER BY arr.column', True)
             for row in table:
@@ -333,19 +349,28 @@ def run_loader_1(self):
 
             while self.get(73):
                 self.sleep(0.001)
-
-            # pickup the block / move to necessary line
-            # (line+43)*2+1) - line' register
+            
+            # =========================================================
+            # pickup the block
             self.set(16, 96)
-            self.set(13, (line+43)*2+1)
+            self.set(13, 89)
             self.set(15, 97)
             conveyors['4.5'] = False
-
-            # move to necessary cell
+            
+            # move to necessary line
+            # (line+43)*2+1) - line' register
+            if line != 1:
+                self.post.set(13, (line+43)*2+1)
+                
+            # move to necessary column
             # (75+(12-column)) - column' register
             if column != 1:
-                self.set(10, 75+(12-column))
-
+                self.post.set(10, 75+(12-column))
+                
+            while not self.get((line+43)*2+1) or not self.get(75+(12-column)):
+                self.sleep(0.001)
+            
+            # =========================================================
             # put the block
             # (line+43)*2) - line' register
             self.set(15, 98)
@@ -358,10 +383,13 @@ def run_loader_1(self):
 
             # return to starting position
             if line != 1:
-                self.set(14, 88)
+                self.post.set(14, 88)
             if column != 1:
-                self.set(11, 86)
-
+                self.post.set(11, 86)
+            
+            while not self.get(88) or not self.get(86):
+                self.sleep(0.001)
+            
             loader_1_tasks.pop(0)
 
         self.sleep(0.001)
@@ -490,6 +518,8 @@ def define_color(self):
 
     # color recognition block
     self.sleep(1)
+    while self.get(0) == 5:
+        self.sleep(1)
     loader_1_tasks.append(self.get(0))
 
     while conveyors['4.5']:
@@ -498,7 +528,7 @@ def define_color(self):
 
     # move from 4.4 to 4.5
     self.post.set(93, 73)
-    self.set(95, 73, time=0.5)
+    self.set(95, 73, time=0.2)
     conveyors['4.4'] = False
 
 
