@@ -1,1 +1,11 @@
 /.idea/
+/dev/python/current/.idea/.gitignore
+/dev/python/current/.idea/current.iml
+/dev/python/current/.idea/deployment.xml
+/dev/python/current/.idea/inspectionProfiles/Project_Default.xml
+/dev/python/current/.idea/inspectionProfiles/profiles_settings.xml
+/dev/python/current/.idea/misc.xml
+/dev/python/current/.idea/modules.xml
+/dev/python/current/.idea/sshConfigs.xml
+/dev/python/current/.idea/vcs.xml
+/dev/python/current/.idea/webServers.xml

@@ -74,8 +74,8 @@ if __name__ == "__main__":
                     # modclient.stopListening()
 
             else:
-                print('- This command is not available!')
-                # exec(command)
+                # print('- This command is not available!')
+                exec(command)
 
         except Exception as e:
             R.error("[REASON] " + str(e))

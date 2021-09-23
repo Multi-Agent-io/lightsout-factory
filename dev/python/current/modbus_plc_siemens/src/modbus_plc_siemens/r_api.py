@@ -2,7 +2,7 @@ import psycopg2 as pg
 import rospy
 
 from std_msgs.msg import Int32MultiArray
-from std_msgs.msg import String
+from std_msgs.msg import Float64MultiArray
 from modbus.process import ProcessWrapper
 from modbus.post_threading import Post
 from contextlib import closing
@@ -144,12 +144,11 @@ class RApi:
             value = self.get(sensor)
             while self.get(sensor) == value:
                 self.sleep(0.001)
-        elif not time:
-            return
-            
-        if time:
+        elif time:
             self.sleep(time)
-        
+        else:
+            return
+
         out_ports[port] = 0
         self.send(out_ports)
 
@@ -197,13 +196,10 @@ class RApi:
 
         del share[0: len(share)]
         # noinspection PyUnresolvedReferences
-        data = msg.data.replace("[", "").replace("]", "").split(',')
-
-        for i in range(len(data)):
-            share.append(data[i])
+        share.append(msg.data)
 
     spectator = rospy.Subscriber("spectator",
-                                 String,
+                                 Float64MultiArray,
                                  __spectator_update,
                                  queue_size=500)
 
