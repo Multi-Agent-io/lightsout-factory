@@ -32,19 +32,19 @@ if __name__ == "__main__":
 
     R.sleep(1)
 
-    # in_ports = modclient.readRegisters(0, 112), (1, 112)
+    # in_ports = modclient.readRegisters(0, 112)
     R.print("(Press any button on FT to proceed)")
-
+    
+    # waiting for pressing any button
     while not in_ports:
-        R.sleep(0.2)
-
+        R.sleep(0.001)
     # r_print(out_ports)
 
     ######################################
     #            Application             #
     ######################################
 
-    R.print("Available commands: show, clear, add*(.), run, stop, exit (act*(.), set(), color)")
+    R.print("Available commands: show, clear, add*(.), run, stop, exit (act*(.), set(.), color)")
 
     command = None
 
