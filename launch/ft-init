@@ -1,0 +1,6 @@
+#!/bin/bash
+
+sudo ifconfig enx00e04c3604d0 192.168.0.1
+killall -9 roscore
+killall -9 rosmaster
+tmux new-session -d -s roscore_session 'roscore'

@@ -1,0 +1,3 @@
+#!/bin/bash
+
+rosrun modbus_plc_siemens modbus_client_app.py
