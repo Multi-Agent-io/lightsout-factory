@@ -2,23 +2,36 @@
 
 ![Factory Image](./misc/factory.png)
 
-<h3><b>Цель проекта:</b></h3>
-Обеспечить работу производственных линий с использованием простейших алгоритмов
+"Lightsout Factory" is the ROS based project of [Robonomics platform][db1] by Airalab. This project is model of an economically autonomous plant. Factory can produce different types of products depending on the current market situation. 
 
-<br>
+Example of how it works you can [find here][yu1].
 
-<h3><b>Демонстрация работы фабрики:</b></h3>
-https://youtube.com/playlist?list=PL009YD81fX3LoJHFsSpESREtFYq7dqAUl
+## Description
 
-<br>
+The factory contains a warehouse of raw materials and a warehouse of goods. Having 4 produce lines, factory is capable of modeling manufacturing process of real 4-line factory, each line produces special type of production, giving an opportunity to set environment for economical experiments.
 
-<h3><b>Этапы проекта:</b></h3>
-<ul>
-  <li>Изучение возмможностей системы</li>
-  <li>Проверка работы контроллера Siemens PLC</li>
-  <li>Проверка и настройка работы всех механизмов фабрики</li>
-  <li>Настройка LattePanda и установка ROS</li>
-  <li>Проверка работы завода по схеме ROS -> modbus -> Siemens PLC</li>
-  <li>Написание алгоритма управления фабрикой</li>
-  <li>Создание дружелюбного UX/UI для управления</li>
-</ul>
+## Goal
+
+The purpose of the experiment is to create an algorithm of factory which monitors "**supply and demand**" situation on market and adaptively produces high-demand goods at optimal rate. As result, the algorithm should minimize both overproduction of goods and their shortage.
+
+## Lightsout crates
+Structure of **Lightsout Factory** followed:
+
+- app - Software part of project. Represents a python wrapper under ModBus protocol and ROS messages. For more information checks [ReadMe][db2]. 
+- firmware - Firmware part of project. Contain all necessary files for SIEMENS controllers. For more information checks [ReadMe][db3].
+- launch - Launch files. They need to start ModBus server on ubuntu. For more information checks [ReadMe][db4].
+
+## Requirements
+- Ubuntu 20.04. Available to install server version on RPi or LattePanda.
+- ROS Noetic. Install [here][db5]
+- SIEMENS controllers - Siemens PLC S7-1200 and 6 additional PLC blocks (SM-1223)
+
+
+
+
+[db1]: <https://robonomics.network/>
+[db2]: <app/README.md>
+[db3]: <firmware/README.md>
+[db4]: <launch/README.md>
+[db5]: <http://wiki.ros.org/noetic/Installation>
+[yu1]: <https://www.youtube.com/playlist?list=PL009YD81fX3LoJHFsSpESREtFYq7dqAUl>
