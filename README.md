@@ -4,6 +4,8 @@
 
 "Lightsout Factory" is the ROS based project of [Robonomics platform][db1] by Airalab. This project is model of an economically autonomous plant. Factory can produce different types of products depending on the current market situation. 
 
+Example of how it works you can [find here][yu1].
+
 ## Description
 
 The factory contains a warehouse of raw materials and a warehouse of goods. Having 4 produce lines, factory is capable of modeling manufacturing process of real 4-line factory, each line produces special type of production, giving an opportunity to set environment for economical experiments.
@@ -32,3 +34,4 @@ Structure of **Lightsout Factory** followed:
 [db3]: <firmware/README.md>
 [db4]: <launch/README.md>
 [db5]: <http://wiki.ros.org/noetic/Installation>
+[yu1]: <https://www.youtube.com/playlist?list=PL009YD81fX3LoJHFsSpESREtFYq7dqAUl>
