@@ -22,7 +22,8 @@ You need to install TIA Portal. For this download program from official [website
 
 First, download files from GitHub [repository][db2]. You should unzip it somewhere.
 
-Open TIA Portal. Open project, which you have just uploaded and unzipped. After that press **project view** button.
+Open TIA Portal. Open project, which you have just uploaded and unzipped. Open `
+LF_project.ap16 ` file in file explorer of TIA Portal. After that press **project view** button.
 
 ![pre_view][im2]
 
