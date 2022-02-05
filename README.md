@@ -17,9 +17,9 @@ The purpose of the experiment is to create an algorithm of factory which monitor
 ## Lightsout crates
 Structure of **Lightsout Factory** followed:
 
-- app - Software part of project. Represents a python wrapper under ModBus protocol and ROS messages. For more information checks [ReadMe][db2]. 
+- src - Software part of project. Represents a Python wrapper under Modbus protocol and ROS messages. For more information checks [ReadMe][db2]. 
 - firmware - Firmware part of project. Contain all necessary files for SIEMENS controllers. For more information checks [ReadMe][db3].
-- launch - Launch files. They need to start ModBus server on ubuntu. For more information checks [ReadMe][db4].
+- launch - Launch files. They need to start Modbus Server on Ubuntu. For more information checks [ReadMe][db4].
 
 ## Requirements
 - Ubuntu 20.04. Available to install server version on RPi or LattePanda.
@@ -30,7 +30,7 @@ Structure of **Lightsout Factory** followed:
 
 
 [db1]: <https://robonomics.network/>
-[db2]: <app/README.md>
+[db2]: <src/README.md>
 [db3]: <firmware/README.md>
 [db4]: <launch/README.md>
 [db5]: <http://wiki.ros.org/noetic/Installation>

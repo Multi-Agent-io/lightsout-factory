@@ -1,0 +1,3 @@
+<launch>
+	<node pkg="modbus_plc_siemens" type="modbus_client_app.py" name="modbus_client_app" />
+</launch>
